@@ -1,0 +1,5859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinSync | Clinical Learning Platform</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --purple: #6045cf;
+    --purple-light: #7961e8;
+    --purple-dark: #30216e;
+    --aqua: #2dc6b5;
+    --background: #f4f6fd;
+    --white: #ffffff;
+    --text: #171849;
+    --muted: #8490ad;
+    --border: #e9ecf6;
+    --green: #14a879;
+    --orange: #f4a62a;
+    --red: #e65d74;
+    --sidebar-width: 235px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    font-size: 13px;
+}
+
+button, input, select, textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--aqua);
+    outline-offset: 2px;
+}
+
+/* =========================================
+   1. ANIMATED INTRO
+========================================= */
+
+#intro {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: var(--purple-dark);
+    transition: opacity .8s ease, visibility .8s ease;
+}
+
+#intro.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.intro-logo {
+    width: 115px;
+    height: 115px;
+    border-radius: 32px;
+    background: linear-gradient(145deg, #6045cf, #8a73ee);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 0 rgba(45,198,181,.3);
+    animation: logoAppear 1s ease both, logoPulse 2s ease-in-out 1s infinite;
+}
+
+.intro-logo svg {
+    width: 78px;
+    height: 78px;
+}
+
+.intro-name {
+    color: white;
+    font-size: 39px;
+    font-weight: 800;
+    margin-top: 24px;
+    letter-spacing: -2px;
+    animation: fadeUp .8s ease .3s both;
+}
+
+.intro-name span {
+    color: var(--aqua);
+}
+
+.intro-tagline {
+    color: #c6c0e9;
+    margin-top: 10px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    animation: fadeUp .8s ease .5s both;
+}
+
+.intro-progress {
+    width: 150px;
+    height: 3px;
+    background: #51438a;
+    border-radius: 10px;
+    margin-top: 35px;
+    overflow: hidden;
+}
+
+.intro-progress div {
+    width: 0;
+    height: 100%;
+    background: var(--aqua);
+    animation: loadBar 2.2s ease forwards;
+}
+
+@keyframes logoAppear {
+    from { opacity: 0; transform: scale(.4) rotate(-20deg); }
+    to { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes logoPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(45,198,181,.25); }
+    50% { box-shadow: 0 0 0 18px rgba(45,198,181,0); }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loadBar {
+    to { width: 100%; }
+}
+
+/* =========================================
+   2. BRAND LOGO
+========================================= */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #6348d5, #8870ed);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.brand-icon svg {
+    width: 29px;
+    height: 29px;
+}
+
+.brand-name {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.8px;
+}
+
+.brand-name span {
+    color: var(--purple);
+}
+
+.brand-subtitle {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    margin-top: 3px;
+    color: var(--muted);
+}
+
+/* =========================================
+   3. LOGIN AND SIGN-UP
+========================================= */
+
+#auth {
+    min-height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    background:
+        radial-gradient(circle at 10% 90%, #dcf8f5 0, transparent 30%),
+        radial-gradient(circle at 90% 10%, #e4defd 0, transparent 35%),
+        #f7f8ff;
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 930px;
+    width: 100%;
+    min-height: 550px;
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 25px 70px rgba(48,33,110,.12);
+    animation: fadeUp .6s ease;
+}
+
+.auth-banner {
+    background: linear-gradient(145deg, #30216e, #4b35a4);
+    color: white;
+    padding: 45px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-banner::before {
+    content: "";
+    position: absolute;
+    width: 330px;
+    height: 330px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 50%;
+    right: -120px;
+    bottom: -90px;
+    box-shadow: 0 0 0 35px rgba(255,255,255,.03),
+                0 0 0 70px rgba(255,255,255,.025);
+}
+
+.auth-banner .brand-name {
+    font-size: 25px;
+}
+
+.auth-banner .brand-name span {
+    color: var(--aqua);
+}
+
+.auth-banner .brand-subtitle {
+    color: #c6c0e9;
+}
+
+.banner-content {
+    position: relative;
+    z-index: 1;
+}
+
+.banner-content h1 {
+    font-size: 34px;
+    line-height: 1.25;
+    letter-spacing: -1.5px;
+    margin-bottom: 18px;
+}
+
+.banner-content p {
+    color: #d4d0ee;
+    line-height: 1.8;
+    font-size: 13px;
+}
+
+.banner-points {
+    margin-top: 25px;
+    display: grid;
+    gap: 15px;
+}
+
+.banner-point {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #e7e3fb;
+}
+
+.point-check {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(45,198,181,.18);
+    color: var(--aqua);
+}
+
+.banner-footer {
+    color: #aaa3d7;
+    font-size: 10px;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-form-area {
+    padding: 45px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-form-area h2 {
+    font-size: 26px;
+    margin-bottom: 8px;
+    letter-spacing: -.8px;
+}
+
+.auth-description {
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 27px;
+}
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    border: 1px solid #e3e6f2;
+    border-radius: 10px;
+    padding: 13px 14px;
+    background: #fbfcff;
+    color: var(--text);
+    outline: none;
+    transition: border .2s, box-shadow .2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(96,69,207,.08);
+}
+
+.auth-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 3px 0 20px;
+    font-size: 10px;
+}
+
+.auth-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.text-button {
+    border: none;
+    background: none;
+    color: var(--purple);
+    font-weight: 600;
+}
+
+.primary-button {
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 18px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.primary-button:hover {
+    background: var(--purple-dark);
+    transform: translateY(-1px);
+}
+
+.full-button {
+    width: 100%;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 23px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.auth-message {
+    display: none;
+    padding: 11px;
+    background: #e5faf5;
+    color: #087b65;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+    font-size: 11px;
+}
+
+.auth-message.show {
+    display: block;
+}
+
+.auth-note {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 17px;
+    line-height: 1.6;
+}
+
+
+/* Password visibility controls */
+.password-field { position: relative; display: flex; align-items: center; }
+.password-field input { padding-right: 76px !important; }
+.password-toggle { position: absolute; right: 9px; border: 0; background: transparent; color: var(--purple); font-size: 10px; font-weight: 700; padding: 8px; border-radius: 6px; }
+.password-toggle:hover { background: #f0edff; }
+.live-status { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 9px; font-weight: 700; }
+.live-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(20,168,121,.12); }
+
+/* =========================================
+   4. APPLICATION LAYOUT
+========================================= */
+
+#app {
+    display: none;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--purple-dark);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 15px;
+    transition: transform .3s;
+}
+
+.sidebar .brand {
+    padding: 0 7px 28px;
+}
+
+.sidebar .brand-name {
+    font-size: 18px;
+    color: white;
+}
+
+.sidebar .brand-name span {
+    color: var(--aqua);
+}
+
+.sidebar .brand-subtitle {
+    color: #b7aedf;
+}
+
+.nav-label {
+    color: #aaa0d8;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 13px 12px 9px;
+    font-weight: 700;
+}
+
+.nav-menu {
+    display: grid;
+    gap: 5px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    color: #d1cbed;
+    background: transparent;
+    border-radius: 9px;
+    text-align: left;
+    font-size: 11px;
+    transition: .2s;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,.08);
+    color: white;
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,.15);
+    color: white;
+    font-weight: 700;
+}
+
+.nav-icon {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.nav-count {
+    margin-left: auto;
+    background: var(--aqua);
+    color: var(--purple-dark);
+    border-radius: 20px;
+    padding: 3px 6px;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.user-profile {
+    padding: 13px 9px;
+    background: rgba(255,255,255,.08);
+    border-radius: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #e8e2ff;
+    color: var(--purple);
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.user-profile .avatar {
+    background: #6452b3;
+    color: white;
+}
+
+.user-name {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.user-role {
+    color: #b9b1dc;
+    font-size: 9px;
+}
+
+.logout-button {
+    border: none;
+    background: transparent;
+    color: #c7bfe9;
+    width: 100%;
+    text-align: left;
+    padding: 15px 10px 5px;
+    font-size: 11px;
+}
+
+.logout-button:hover {
+    color: white;
+}
+
+.main-area {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+.topbar {
+    height: 65px;
+    background: rgba(255,255,255,.93);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 35px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.topbar-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.eyebrow {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.icon-button {
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--purple);
+    position: relative;
+}
+
+.notification-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--aqua);
+    border-radius: 50%;
+    position: absolute;
+    right: 6px;
+    top: 6px;
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.topbar-user .avatar {
+    width: 31px;
+    height: 31px;
+}
+
+.topbar-user-name {
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.topbar-user-role {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 3px;
+}
+
+.mobile-menu {
+    display: none;
+    border: none;
+    background: none;
+    color: var(--purple);
+    font-size: 23px;
+}
+
+.page-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 35px 50px;
+}
+
+.page {
+    display: none;
+    animation: fadeUp .3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 23px;
+}
+
+.page-heading h1 {
+    font-size: 23px;
+    letter-spacing: -.8px;
+    margin: 7px 0;
+}
+
+.page-heading p {
+    color: #687795;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.small-button {
+    padding: 11px 15px;
+    border: none;
+    border-radius: 9px;
+    background: var(--purple);
+    color: white;
+    font-weight: 700;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.small-button:hover {
+    background: var(--purple-dark);
+}
+
+.secondary-button {
+    background: white;
+    color: var(--purple);
+    border: 1px solid #e5e0fa;
+}
+
+.secondary-button:hover {
+    background: #f0edff;
+}
+
+.grid {
+    display: grid;
+    gap: 16px;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 21px;
+    border-radius: 15px;
+    border: 1px solid #f0f1f8;
+    box-shadow: 0 5px 18px rgba(40,30,100,.025);
+}
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.stat-icon {
+    width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #f0edff;
+    color: var(--purple);
+    font-size: 16px;
+}
+
+.stat-icon.aqua {
+    background: #e3fbf7;
+    color: #0b9e90;
+}
+
+.stat-icon.green {
+    background: #e5fbf1;
+    color: var(--green);
+}
+
+.stat-icon.orange {
+    background: #fff3df;
+    color: var(--orange);
+}
+
+.stat-number {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 6px;
+}
+
+.stat-change {
+    font-size: 9px;
+    color: var(--green);
+    font-weight: 700;
+}
+
+.two-column {
+    grid-template-columns: 1.4fr 1fr;
+    margin-bottom: 18px;
+}
+
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 21px;
+    border: 1px solid #f0f1f8;
+    box-shadow: 0 5px 20px rgba(40,30,100,.025);
+    min-width: 0;
+}
+
+.card-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 19px;
+}
+
+.card-heading h3 {
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.link-button {
+    color: var(--purple);
+    border: none;
+    background: none;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.small {
+    font-size: 10px;
+}
+
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+}
+
+/* =========================================
+   5. DASHBOARD COMPONENTS
+========================================= */
+
+.performance-layout {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+.donut {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: conic-gradient(var(--aqua) 0 88%, #e8e7f8 88% 100%);
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+.donut::before {
+    content: "";
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.donut-inner {
+    z-index: 1;
+    text-align: center;
+}
+
+.donut-inner strong {
+    display: block;
+    font-size: 20px;
+}
+
+.donut-inner span {
+    font-size: 8px;
+    color: var(--muted);
+}
+
+.chart {
+    height: 130px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0 0;
+}
+
+.bar-wrap {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.bar {
+    width: 100%;
+    max-width: 65px;
+    min-height: 10px;
+    background: linear-gradient(180deg, var(--aqua), var(--purple));
+    border-radius: 5px 5px 0 0;
+    transition: height .4s;
+}
+
+.bar-label {
+    font-size: 8px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.score-box {
+    background: #f9faff;
+    border: 1px solid #eef0fa;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.score-box span {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    margin-bottom: 7px;
+}
+
+.score-box strong {
+    font-size: 15px;
+    color: var(--purple);
+}
+
+.duty-card {
+    background: var(--purple-dark);
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    min-height: 240px;
+    box-shadow: 0 12px 25px rgba(48,33,110,.12);
+}
+
+.duty-card h3 {
+    margin: 12px 0 20px;
+    font-size: 16px;
+}
+
+.duty-time {
+    font-size: 28px;
+    letter-spacing: -1px;
+}
+
+.duty-card p {
+    color: #d3ccef;
+    font-size: 10px;
+    margin-top: 8px;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 30px;
+    font-size: 9px;
+    font-weight: 700;
+    background: #e5faf2;
+    color: var(--green);
+    white-space: nowrap;
+}
+
+.status.pending {
+    background: #fff3dd;
+    color: #b77700;
+}
+
+.status.progress {
+    background: #eeebff;
+    color: var(--purple);
+}
+
+.status.absent {
+    background: #ffe8ed;
+    color: var(--red);
+}
+
+.status.late {
+    background: #fff3df;
+    color: #b77700;
+}
+
+.status.present {
+    background: #e4faf3;
+    color: var(--green);
+}
+
+.list-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #f0f1f8;
+}
+
+.list-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.list-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: #f0edff;
+    color: var(--purple);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.list-icon.aqua {
+    background: #e4fbf8;
+    color: #099e90;
+}
+
+.list-icon.green {
+    background: #e5faf1;
+    color: var(--green);
+}
+
+.list-icon.orange {
+    background: #fff3df;
+    color: #c08014;
+}
+
+.list-main {
+    min-width: 0;
+    flex: 1;
+}
+
+.list-main strong {
+    display: block;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.list-main span {
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.list-end {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.list-end small {
+    display: block;
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+/* =========================================
+   6. TABLES
+========================================= */
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+th {
+    background: #f8f9fe;
+    color: #7d88a5;
+    font-size: 9px;
+    letter-spacing: .5px;
+    font-weight: 700;
+    text-align: left;
+    padding: 13px 12px;
+}
+
+td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f0f1f8;
+    font-size: 10px;
+}
+
+tbody tr:hover {
+    background: #fbfaff;
+}
+
+.table-person {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.table-person .avatar {
+    width: 29px;
+    height: 29px;
+}
+
+/* =========================================
+   7. FORMS AND ACTIVITIES
+========================================= */
+
+.form-card {
+    max-width: 760px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 0 16px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.file-input {
+    border: 1px dashed #cfc7f4;
+    border-radius: 11px;
+    padding: 20px;
+    text-align: center;
+    background: #faf9ff;
+}
+
+.file-input input {
+    margin-top: 12px;
+    max-width: 100%;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.filter-bar input,
+.filter-bar select {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 13px;
+    background: white;
+    color: var(--text);
+}
+
+.filter-bar input {
+    min-width: 200px;
+    flex: 1;
+}
+
+.activity-card {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 17px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    margin-bottom: 12px;
+}
+
+.activity-card h3 {
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.activity-card p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.activity-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+/* =========================================
+   8. EVALUATION AND FEEDBACK
+========================================= */
+
+.rating-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.rating-row:last-child {
+    border-bottom: none;
+}
+
+.rating-row label {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.rating-row select {
+    width: 100px;
+    border: 1px solid var(--border);
+    padding: 9px;
+    border-radius: 8px;
+    background: white;
+}
+
+.stars {
+    display: flex;
+    gap: 6px;
+}
+
+.star {
+    border: none;
+    background: none;
+    font-size: 25px;
+    color: #d7d9e8;
+}
+
+.star.selected {
+    color: #f3b53f;
+}
+
+/* =========================================
+   9. NOTIFICATIONS
+========================================= */
+
+.notification-item {
+    display: flex;
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item h4 {
+    font-size: 11px;
+    margin-bottom: 6px;
+}
+
+.notification-item p {
+    color: #74809b;
+    line-height: 1.7;
+    font-size: 10px;
+}
+
+.notification-item small {
+    display: block;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+/* =========================================
+   10. REPORTS AND SETTINGS
+========================================= */
+
+.report-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+}
+
+.report-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.report-card h3 {
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.report-card p {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-row h4 {
+    font-size: 11px;
+    margin-bottom: 6px;
+}
+
+.settings-row p {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.settings-row input:not([type="checkbox"]),
+.settings-row select {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+}
+
+.empty-state {
+    padding: 35px 15px;
+    text-align: center;
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+/* =========================================
+   11. TOAST MESSAGES
+========================================= */
+
+#toast-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 10000;
+    display: grid;
+    gap: 10px;
+}
+
+.toast {
+    background: var(--purple-dark);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 11px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    max-width: 340px;
+    line-height: 1.6;
+    animation: fadeUp .3s ease;
+}
+
+.toast.success {
+    border-left: 4px solid var(--aqua);
+}
+
+.toast.error {
+    border-left: 4px solid var(--red);
+}
+
+/* =========================================
+   12. RESPONSIVE LAYOUT
+========================================= */
+
+@media (max-width: 1100px) {
+    :root {
+        --sidebar-width: 205px;
+    }
+
+    .page-content {
+        padding: 25px 20px;
+    }
+
+    .topbar {
+        padding: 0 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+
+    .two-column {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 250px;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-area {
+        margin-left: 0;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .topbar {
+        gap: 12px;
+        padding: 0 15px;
+    }
+
+    .topbar-title {
+        font-size: 12px;
+    }
+
+    .topbar-right {
+        gap: 8px;
+    }
+
+    .topbar-user-name {
+        font-size: 9px;
+    }
+
+    .page-content {
+        padding: 23px 14px;
+    }
+
+    .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-heading h1 {
+        font-size: 21px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-number {
+        font-size: 23px;
+    }
+
+    .performance-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .score-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid,
+    .report-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-container {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+    }
+
+    .auth-banner {
+        padding: 27px;
+        min-height: 245px;
+    }
+
+    .auth-banner .banner-content {
+        margin-top: 28px;
+    }
+
+    .banner-content h1 {
+        font-size: 25px;
+    }
+
+    .banner-points,
+    .banner-footer {
+        display: none;
+    }
+
+    .auth-form-area {
+        padding: 30px 25px;
+    }
+
+    .auth-form-area h2 {
+        font-size: 23px;
+    }
+}
+
+
+/* =========================================
+   V. ENHANCED RESPONSIVE DESIGN
+   Desktop, tablet, and mobile overrides
+========================================= */
+
+/* Prevent accidental page-wide horizontal scrolling. */
+html {
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+}
+body {
+    width: 100%;
+    min-width: 320px;
+    overflow-x: hidden;
+}
+img, svg, video, canvas {
+    max-width: 100%;
+}
+.page-content,
+.main-area,
+.card,
+.stat-card,
+.activity-card,
+.form-card {
+    min-width: 0;
+}
+button, input, select, textarea {
+    max-width: 100%;
+}
+
+/* Large tablets and compact laptops. */
+@media (max-width: 1100px) {
+    :root { --sidebar-width: 205px; }
+
+    .page-content { padding: 24px 22px 40px; }
+    .topbar { padding: 0 22px; }
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .two-column { grid-template-columns: minmax(0, 1fr); }
+    .card { padding: 18px; }
+}
+
+/* Tablet: use an off-canvas navigation so the workspace has room. */
+@media (max-width: 900px) {
+    .sidebar {
+        width: min(280px, 84vw);
+        transform: translateX(-105%);
+        box-shadow: 12px 0 35px rgba(24, 18, 65, .18);
+        z-index: 300;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main-area { margin-left: 0; width: 100%; }
+    .mobile-menu {
+        display: inline-grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border-radius: 9px;
+        background: #f1efff;
+    }
+    .topbar { padding: 0 20px; }
+    .page-content { padding: 22px 20px 38px; }
+    .auth-container { max-width: 820px; }
+    .auth-banner { padding: 34px; }
+    .auth-form-area { padding: 34px; }
+}
+
+/* Phones and narrow tablets. */
+@media (max-width: 700px) {
+    #auth {
+        min-height: 100svh;
+        padding: 14px;
+        align-items: flex-start;
+    }
+    .auth-container {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 480px;
+        min-height: 0;
+        margin: auto;
+        border-radius: 18px;
+    }
+    .auth-banner {
+        min-height: 0;
+        padding: 22px 22px 18px;
+        gap: 18px;
+    }
+    .auth-banner .brand-name { font-size: 21px; }
+    .auth-banner .banner-content { margin-top: 0; }
+    .banner-content h1 {
+        font-size: clamp(22px, 6vw, 29px);
+        margin-bottom: 9px;
+    }
+    .banner-content p { font-size: 11px; line-height: 1.6; }
+    .banner-points, .banner-footer { display: none; }
+    .auth-form-area { padding: 25px 22px 28px; }
+    .auth-form-area h2 { font-size: 23px; }
+    .auth-description { margin-bottom: 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group input, .form-group select, .form-group textarea {
+        min-height: 44px;
+        font-size: 14px;
+    }
+    .primary-button { min-height: 44px; }
+
+    .topbar {
+        min-height: 60px;
+        height: auto;
+        padding: 9px 12px;
+        gap: 8px;
+    }
+    .topbar > div:first-child { min-width: 0; gap: 8px !important; }
+    .eyebrow { font-size: 8px; letter-spacing: 1px; }
+    .topbar-title { font-size: 12px; }
+    .topbar-right { gap: 7px; }
+    .live-status { font-size: 8px; white-space: nowrap; }
+    .topbar-user { gap: 6px; }
+    .topbar-user-name { max-width: 95px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .topbar-user-role { font-size: 8px; }
+    .topbar-user .avatar { width: 29px; height: 29px; }
+    .icon-button { width: 32px; height: 32px; flex: 0 0 32px; }
+    .mobile-menu { width: 34px; height: 34px; flex-basis: 34px; font-size: 20px; }
+
+    .page-content { padding: 19px 13px 32px; }
+    .page-heading {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 17px;
+    }
+    .page-heading h1 { font-size: clamp(20px, 5vw, 24px); }
+    .page-heading p { font-size: 11px; }
+    .page-heading > button { align-self: flex-start; }
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 13px;
+    }
+    .stat-card { padding: 13px; border-radius: 12px; }
+    .stat-top { margin-bottom: 12px; }
+    .stat-number { font-size: clamp(20px, 6vw, 25px); }
+    .stat-label { font-size: 9px; line-height: 1.4; }
+    .stat-icon { width: 31px; height: 31px; }
+    .card { padding: 15px; border-radius: 13px; }
+    .card-heading { align-items: flex-start; margin-bottom: 14px; }
+    .card-heading h3 { font-size: 12px; }
+    .two-column { gap: 12px; margin-bottom: 13px; }
+    .performance-layout { grid-template-columns: 88px minmax(0, 1fr); gap: 12px; }
+    .donut { width: 82px; height: 82px; }
+    .donut::before { width: 62px; height: 62px; }
+    .donut-inner strong { font-size: 18px; }
+    .chart { height: 105px; gap: 6px; }
+    .bar-label { font-size: 7px; }
+    .score-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 14px; }
+    .score-box { padding: 9px 7px; }
+    .score-box span { font-size: 8px; line-height: 1.4; }
+    .score-box strong { font-size: 12px; }
+    .duty-card { min-height: 0; padding: 19px; }
+    .duty-time { font-size: 25px; }
+
+    .form-grid, .report-grid { grid-template-columns: minmax(0, 1fr); }
+    .form-group.full { grid-column: auto; }
+    .filter-bar { flex-direction: column; }
+    .filter-bar input, .filter-bar select { width: 100%; min-width: 0; }
+    .activity-card { gap: 10px; padding: 13px; }
+    .activity-card > * { min-width: 0; }
+    .activity-actions { gap: 7px; }
+    .rating-row { align-items: flex-start; flex-direction: column; gap: 8px; }
+    .rating-row select { width: 100%; }
+    .settings-row { align-items: flex-start; flex-direction: column; gap: 10px; }
+    .report-card { padding: 14px; }
+    .notification-item { gap: 10px; padding: 14px 0; }
+
+    .table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 9px;
+    }
+    table { min-width: 620px; }
+    th, td { padding: 11px 10px; }
+
+    #toast-container {
+        left: 12px;
+        right: 12px;
+        bottom: max(12px, env(safe-area-inset-bottom));
+    }
+    .toast { max-width: none; width: 100%; }
+}
+
+/* Small phones. */
+@media (max-width: 420px) {
+    .topbar-right .live-status { display: none; }
+    .topbar-user-name { max-width: 78px; }
+    .page-content { padding-left: 10px; padding-right: 10px; }
+    .stats-grid { gap: 8px; }
+    .stat-card { padding: 11px; }
+    .stat-top { gap: 5px; }
+    .stat-change { font-size: 8px; }
+    .performance-layout { grid-template-columns: 1fr; justify-items: center; }
+    .performance-layout .chart { width: 100%; }
+    .score-grid { grid-template-columns: 1fr; }
+    .score-box { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .score-box span { margin: 0; }
+    .auth-form-area { padding: 22px 17px 24px; }
+    .auth-options { flex-wrap: wrap; }
+    .intro-name { font-size: 34px; }
+    .intro-logo { width: 96px; height: 96px; }
+    .intro-logo svg { width: 66px; height: 66px; }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================================
+     1. ANIMATED LOGO INTRO
+========================================= -->
+
+<div id="intro">
+    <div class="intro-logo">
+        <svg viewBox="0 0 100 100" fill="none">
+            <path d="M70 20 A36 36 0 1 0 73 79"
+                  stroke="white" stroke-width="8"
+                  stroke-linecap="round"/>
+            <path d="M19 51 H36 L46 32 L60 69 L69 51 H83"
+                  stroke="#2dc6b5" stroke-width="7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="72" cy="20" r="6" fill="#2dc6b5"/>
+            <circle cx="73" cy="79" r="6" fill="white"/>
+        </svg>
+    </div>
+
+    <div class="intro-name">Clin<span>Sync</span></div>
+    <div class="intro-tagline">CLINICAL LEARNING. PERFECTLY CONNECTED.</div>
+    <div class="intro-progress"><div></div></div>
+</div>
+
+
+<!-- =========================================
+     2. LOGIN / SIGN-UP INTERFACE
+========================================= -->
+
+<section id="auth">
+
+    <div class="auth-container">
+
+        <div class="auth-banner">
+
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 100 100" fill="none">
+                        <path d="M70 20 A36 36 0 1 0 73 79"
+                              stroke="white" stroke-width="8"
+                              stroke-linecap="round"/>
+                        <path d="M19 51 H36 L46 32 L60 69 L69 51 H83"
+                              stroke="#2dc6b5" stroke-width="7"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="72" cy="20" r="6" fill="#2dc6b5"/>
+                        <circle cx="73" cy="79" r="6" fill="white"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="brand-name">Clin<span>Sync</span></div>
+                    <div class="brand-subtitle">CONNECTED CARE</div>
+                </div>
+            </div>
+
+            <div class="banner-content">
+                <h1>Clinical learning.<br>Perfectly connected.</h1>
+
+                <p>
+                    Your clinical learning journey, organized in one place.
+                    Track your progress, receive meaningful feedback, and
+                    build confidence in healthcare practice.
+                </p>
+
+                <div class="banner-points">
+                    <div class="banner-point">
+                        <span class="point-check">✓</span>
+                        Real-time clinical feedback
+                    </div>
+
+                    <div class="banner-point">
+                        <span class="point-check">✓</span>
+                        Organized clinical activities
+                    </div>
+
+                    <div class="banner-point">
+                        <span class="point-check">✓</span>
+                        Connected student and instructor workspace
+                    </div>
+                </div>
+            </div>
+
+            <div class="banner-footer">
+                SMARTER FEEDBACK · STRONGER CARE
+            </div>
+
+        </div>
+
+
+        <div class="auth-form-area">
+
+            <!-- LOGIN FORM -->
+
+            <form id="loginForm">
+
+                <h2>Welcome back!</h2>
+
+                <p class="auth-description">
+                    Sign in to continue your clinical learning journey.
+                </p>
+
+                <div id="loginMessage" class="auth-message"></div>
+
+                <div class="form-group">
+                    <label for="loginEmail">Email address</label>
+                    <input type="email" id="loginEmail"
+                           placeholder="you@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="loginPassword"
+                               placeholder="Enter your password" autocomplete="current-password" required>
+                        <button type="button" class="password-toggle" data-toggle-password="loginPassword" aria-controls="loginPassword" aria-pressed="false">Show</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginRole">Sign in as</label>
+                    <select id="loginRole">
+                        <option value="student">Student</option>
+                        <option value="instructor">Clinical Instructor</option>
+                    </select>
+                </div>
+
+                <div class="auth-options">
+                    <label>
+                        <input type="checkbox" id="rememberMe">
+                        Remember me
+                    </label>
+
+                    <button type="button" class="text-button"
+                            onclick="forgotPassword()">
+                        Forgot password?
+                    </button>
+                </div>
+
+                <button class="primary-button full-button" type="submit">
+                    Log In →
+                </button>
+
+                <div class="auth-switch">
+                    Don't have an account?
+                    <button type="button" class="text-button"
+                            onclick="showAuthForm('signup')">
+                        Sign up
+                    </button>
+                </div>
+
+                <p class="auth-note">
+                    Sign in with your ClinSync account. Your data is stored securely in the cloud and
+                    stays in sync across all your devices.
+                </p>
+
+            </form>
+
+
+            <!-- SIGN-UP FORM -->
+
+            <form id="signupForm" style="display:none">
+
+                <h2>Create an account</h2>
+
+                <p class="auth-description">
+                    Join ClinSync and manage your clinical learning journey.
+                </p>
+
+                <div id="signupMessage" class="auth-message"></div>
+
+                <div class="form-group">
+                    <label for="signupName">Full name</label>
+                    <input type="text" id="signupName"
+                           placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">Email address</label>
+                    <input type="email" id="signupEmail"
+                           placeholder="you@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupRole">Choose your role</label>
+                    <select id="signupRole" required>
+                        <option value="student">Student</option>
+                        <option value="instructor">Clinical Instructor</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="signupPassword"
+                               placeholder="At least 6 characters" autocomplete="new-password"
+                               minlength="6" required>
+                        <button type="button" class="password-toggle" data-toggle-password="signupPassword" aria-controls="signupPassword" aria-pressed="false">Show</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupConfirm">Confirm password</label>
+                    <div class="password-field">
+                        <input type="password" id="signupConfirm"
+                               placeholder="Re-enter your password" autocomplete="new-password" required>
+                        <button type="button" class="password-toggle" data-toggle-password="signupConfirm" aria-controls="signupConfirm" aria-pressed="false">Show</button>
+                    </div>
+                </div>
+
+                <button class="primary-button full-button" type="submit">
+                    Create Account
+                </button>
+
+                <div class="auth-switch">
+                    Already have an account?
+                    <button type="button" class="text-button"
+                            onclick="showAuthForm('login')">
+                        Log in
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     3. MAIN APPLICATION
+========================================= -->
+
+<div id="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 100 100" fill="none">
+                    <path d="M70 20 A36 36 0 1 0 73 79"
+                          stroke="white" stroke-width="8"
+                          stroke-linecap="round"/>
+                    <path d="M19 51 H36 L46 32 L60 69 L69 51 H83"
+                          stroke="#2dc6b5" stroke-width="7"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="72" cy="20" r="6" fill="#2dc6b5"/>
+                    <circle cx="73" cy="79" r="6" fill="white"/>
+                </svg>
+            </div>
+
+            <div>
+                <div class="brand-name">Clin<span>Sync</span></div>
+                <div class="brand-subtitle">CONNECTED CARE</div>
+            </div>
+        </div>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <nav class="nav-menu" id="mainNavigation"></nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="user-profile">
+                <div class="avatar" id="sidebarAvatar">AL</div>
+
+                <div style="min-width:0">
+                    <div class="user-name" id="sidebarName">Nove Princess Balo</div>
+                    <div class="user-role" id="sidebarRole">Student</div>
+                </div>
+            </div>
+
+            <button class="logout-button" onclick="logout()">
+                ↪ &nbsp; Log out
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT AREA -->
+
+    <div class="main-area">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;gap:12px">
+                <button class="mobile-menu" onclick="toggleSidebar()">
+                    ☰
+                </button>
+
+                <div>
+                    <div class="eyebrow">CLINICAL LEARNING WORKSPACE</div>
+                    <div class="topbar-title" id="topbarTitle">Overview</div>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="live-status" title="Changes sync in real time through Firebase">Live sync</span>
+
+                <button class="icon-button"
+                        onclick="navigate('notifications')"
+                        title="Notifications">
+                    ♧
+                    <span class="notification-dot"></span>
+                </button>
+
+                <div class="topbar-user">
+                    <div class="avatar" id="topbarAvatar">AL</div>
+                    <div>
+                        <div class="topbar-user-name" id="topbarName">
+                            Cielo Conol
+                        </div>
+                        <div class="topbar-user-role" id="topbarRole">
+                            Student
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTAINER -->
+
+        <main class="page-content">
+
+
+            <!-- =========================================
+                 STUDENT DASHBOARD
+            ========================================= -->
+
+            <section class="page active" id="page-studentDashboard">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow" style="color:var(--purple)">
+                            STUDENT OVERVIEW
+                        </div>
+
+                        <h1 id="studentGreeting">Good morning, Angela.</h1>
+
+                        <p>
+                            Here's how your clinical journey is progressing.
+                        </p>
+                    </div>
+
+                    <button class="small-button"
+                            onclick="navigate('activities')">
+                        + Submit activity
+                    </button>
+
+                </div>
+
+
+                <div class="grid two-column">
+
+                    <div class="card">
+
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">CURRENT PERFORMANCE</div>
+                                <h3>Internal Medicine</h3>
+                            </div>
+
+                            <button class="link-button"
+                                    onclick="navigate('evaluations')">
+                                View evaluation →
+                            </button>
+                        </div>
+
+                        <div class="performance-layout">
+
+                            <div class="donut">
+                                <div class="donut-inner">
+                                    <strong id="studentScore">88%</strong>
+                                    <span>OVERALL</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="chart" id="studentChart"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="score-grid">
+
+                            <div class="score-box">
+                                <span>Clinical skills</span>
+                                <strong>4.4 / 5</strong>
+                            </div>
+
+                            <div class="score-box">
+                                <span>Communication</span>
+                                <strong>4.2 / 5</strong>
+                            </div>
+
+                            <div class="score-box">
+                                <span>Professionalism</span>
+                                <strong>4.6 / 5</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="duty-card">
+
+                        <div style="display:flex;justify-content:space-between;gap:10px">
+                            <div class="eyebrow" style="color:#d1c9f3">
+                                NEXT HOSPITAL DUTY
+                            </div>
+
+                            <span class="status"
+                                  style="background:rgba(45,198,181,.15);color:#66e5d7">
+                                On schedule
+                            </span>
+                        </div>
+
+                        <h3 id="nextDutyWard">Medical Ward</h3>
+
+                        <div class="duty-time" id="nextDutyTime">07:00 <span style="font-size:12px">AM</span></div>
+
+                        <p id="nextDutyDate">May 22 · St. Luke's, Ward 4B</p>
+
+                        <div class="divider"
+                             style="background:rgba(255,255,255,.15);margin:20px 0"></div>
+
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div class="avatar"
+                                 style="background:#493a87;color:white">
+                                DS
+                            </div>
+
+                            <div>
+                                <div style="font-size:9px;color:#cfc6ef">
+                                    Clinical Instructor
+                                </div>
+                                <strong style="font-size:11px">
+                                    Ara Claire Orion, RN
+                                </strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid two-column">
+
+                    <div class="card">
+
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">YOUR WORK</div>
+                                <h3>Upcoming activities</h3>
+                            </div>
+
+                            <button class="link-button"
+                                    onclick="navigate('activities')">
+                                View all
+                            </button>
+                        </div>
+
+                        <div id="studentUpcoming"></div>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">LATEST UPDATE</div>
+                                <h3>Feedback & announcements</h3>
+                            </div>
+
+                            <span style="color:var(--aqua)">●</span>
+                        </div>
+
+                        <div id="studentLatestFeedback"></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 INSTRUCTOR DASHBOARD
+            ========================================= -->
+
+            <section class="page" id="page-instructorDashboard">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="eyebrow" style="color:var(--purple)">
+                            CLINICAL OVERVIEW
+                        </div>
+
+                        <h1 id="instructorGreeting">
+                            Good morning, Ara Claire Orion, RN.
+                        </h1>
+
+                        <p>Here's what needs your attention today.</p>
+                    </div>
+
+                    <button class="small-button"
+                            onclick="navigate('submissions')">
+                        Review submissions
+                    </button>
+
+                </div>
+
+
+                <div class="grid two-column">
+
+                    <div class="card">
+
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">CURRENT PERFORMANCE</div>
+                                <h3>Internal Medicine</h3>
+                            </div>
+
+                            <button class="link-button"
+                                    onclick="navigate('evaluations')">
+                                View evaluation →
+                            </button>
+                        </div>
+
+                        <div class="performance-layout">
+
+                            <div class="donut">
+                                <div class="donut-inner">
+                                    <strong id="instructorScore">88%</strong>
+                                    <span>OVERALL</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="chart" id="instructorChart"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="score-grid">
+
+                            <div class="score-box">
+                                <span>Clinical skills</span>
+                                <strong>4.4 / 5</strong>
+                            </div>
+
+                            <div class="score-box">
+                                <span>Communication</span>
+                                <strong>4.2 / 5</strong>
+                            </div>
+
+                            <div class="score-box">
+                                <span>Professionalism</span>
+                                <strong>4.6 / 5</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="duty-card">
+
+                        <div class="eyebrow" style="color:#d1c9f3">
+                            NEXT HOSPITAL DUTY
+                        </div>
+
+                        <h3>Medical Ward</h3>
+
+                        <div class="duty-time">07:00 <span style="font-size:12px">AM</span></div>
+
+                        <p>May 22 · St. Luke's, Ward 4B</p>
+
+                        <div class="divider"
+                             style="background:rgba(255,255,255,.15);margin:20px 0"></div>
+
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div class="avatar"
+                                 style="background:#493a87;color:white">
+                                DS
+                            </div>
+
+                            <div>
+                                <div style="font-size:9px;color:#cfc6ef">
+                                    Signed in as
+                                </div>
+                                <strong style="font-size:11px">
+                                    Clinical Instructor
+                                </strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon">♙</div>
+                            <span class="stat-change">Active</span>
+                        </div>
+                        <div class="stat-number" id="totalStudents">24</div>
+                        <div class="stat-label">Total students</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon aqua">▤</div>
+                        </div>
+                        <div class="stat-number" id="pendingSubmissions">3</div>
+                        <div class="stat-label">Pending submissions</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon green">✓</div>
+                        </div>
+                        <div class="stat-number" id="pendingEvaluations">2</div>
+                        <div class="stat-label">Pending evaluations</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-icon orange">◷</div>
+                        </div>
+                        <div class="stat-number" id="todayActivities">2</div>
+                        <div class="stat-label">Today's activities</div>
+                    </div>
+
+                </div>
+
+
+                <div class="grid two-column">
+
+                    <div class="card">
+
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">STUDENT WORK</div>
+                                <h3>Recent submissions</h3>
+                            </div>
+
+                            <button class="link-button"
+                                    onclick="navigate('submissions')">
+                                View all
+                            </button>
+                        </div>
+
+                        <div id="instructorRecentSubmissions"></div>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">QUICK ACTIONS</div>
+                                <h3>Manage your students</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid"
+                             style="grid-template-columns:repeat(2,minmax(0,1fr))">
+
+                            <button class="stat-card"
+                                    onclick="navigate('evaluations')">
+                                <div class="stat-icon">▤</div>
+                                <strong style="display:block;margin-top:12px;font-size:11px">
+                                    Evaluate
+                                </strong>
+                                <p class="muted small" style="margin-top:6px">
+                                    Review student work
+                                </p>
+                            </button>
+
+                            <button class="stat-card"
+                                    onclick="navigate('announcements')">
+                                <div class="stat-icon aqua">♢</div>
+                                <strong style="display:block;margin-top:12px;font-size:11px">
+                                    Announcement
+                                </strong>
+                                <p class="muted small" style="margin-top:6px">
+                                    Share updates
+                                </p>
+                            </button>
+
+                            <button class="stat-card"
+                                    onclick="navigate('attendance')">
+                                <div class="stat-icon green">✓</div>
+                                <strong style="display:block;margin-top:12px;font-size:11px">
+                                    Attendance
+                                </strong>
+                                <p class="muted small" style="margin-top:6px">
+                                    Record duty attendance
+                                </p>
+                            </button>
+
+                            <button class="stat-card"
+                                    onclick="navigate('feedback')">
+                                <div class="stat-icon orange">✉</div>
+                                <strong style="display:block;margin-top:12px;font-size:11px">
+                                    Feedback
+                                </strong>
+                                <p class="muted small" style="margin-top:6px">
+                                    Send student feedback
+                                </p>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 ACTIVITIES
+            ========================================= -->
+
+            <section class="page" id="page-activities">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">CLINICAL WORKSPACE</div>
+                        <h1>Activities & Submissions</h1>
+                        <p>Manage clinical requirements, assignments, and submitted work.</p>
+                    </div>
+
+                    <button class="small-button"
+                            id="newActivityButton"
+                            onclick="openActivityForm()">
+                        + Create activity
+                    </button>
+                </div>
+
+                <div class="card" id="activityFormCard" style="display:none;margin-bottom:16px">
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">NEW CLINICAL REQUIREMENT</div>
+                            <h3>Create and assign an activity</h3>
+                        </div>
+                        <button type="button" class="link-button" onclick="openActivityForm()">Close</button>
+                    </div>
+                    <form id="createActivityForm">
+                        <div class="grid two-column">
+                            <div class="form-group">
+                                <label for="newActivityStudent">Assign to student</label>
+                                <select id="newActivityStudent" required>
+                                    <option value="Nove Princess Balo">Nove Princess Balo</option>
+                                    <option value="Cielo Venice Conol">Cielo Venice Conol</option>
+                                    <option value="Alliah Vienne Aba-a">Alliah Vienne Aba-a</option>
+                                    <option value="Francis Gabrielle Ricablanca">Francis Gabrielle Ricablanca</option>
+                                    <option value="Azariah Joshua Farmer">Azariah Joshua Farmer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newActivityTitle">Activity title</label>
+                                <input id="newActivityTitle" required placeholder="e.g. Patient Case Reflection">
+                            </div>
+                            <div class="form-group">
+                                <label for="newActivityType">Activity type</label>
+                                <select id="newActivityType" required>
+                                    <option>Reflection paper</option>
+                                    <option>Practical assessment</option>
+                                    <option>Clinical record</option>
+                                    <option>Case study</option>
+                                    <option>Checklist</option>
+                                    <option>Other requirement</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newActivityRotation">Clinical rotation</label>
+                                <select id="newActivityRotation" required>
+                                    <option>Internal Medicine</option>
+                                    <option>Surgery</option>
+                                    <option>Pediatrics</option>
+                                    <option>Obstetrics and Gynecology</option>
+                                    <option>Emergency Department</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newActivityDue">Deadline</label>
+                                <input id="newActivityDue" type="date" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newActivityDescription">Instructions and requirements</label>
+                            <textarea id="newActivityDescription" required placeholder="Explain what the student needs to complete and submit..."></textarea>
+                        </div>
+                        <button type="submit" class="primary-button">Publish activity</button>
+                    </form>
+                </div>
+
+                <div class="filter-bar">
+                    <input id="activitySearch"
+                           placeholder="Search activities..."
+                           oninput="renderActivities()">
+
+                    <select id="activityFilter" onchange="renderActivities()">
+                        <option value="all">All statuses</option>
+                        <option value="Not started">Not started</option>
+                        <option value="In progress">In progress</option>
+                        <option value="Submitted">Submitted</option>
+                        <option value="Reviewed">Reviewed</option>
+                    </select>
+                </div>
+
+                <div class="card" id="activityList"></div>
+
+            </section>
+
+
+            <!-- =========================================
+                 SUBMISSIONS (INSTRUCTOR)
+            ========================================= -->
+
+            <section class="page" id="page-submissions">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">INSTRUCTOR WORKSPACE</div>
+                        <h1>Student Submissions</h1>
+                        <p>Review submitted requirements and provide feedback.</p>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <input id="submissionSearch"
+                           placeholder="Search students or activities..."
+                           oninput="renderSubmissions()">
+
+                    <select id="submissionFilter"
+                            onchange="renderSubmissions()">
+                        <option value="all">All statuses</option>
+                        <option value="Submitted">Submitted</option>
+                        <option value="Reviewed">Reviewed</option>
+                    </select>
+                </div>
+
+                <div class="card" id="submissionList"></div>
+
+            </section>
+
+
+            <!-- =========================================
+                 EVALUATIONS
+            ========================================= -->
+
+            <section class="page" id="page-evaluations">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">CLINICAL ASSESSMENT</div>
+                        <h1>Evaluations</h1>
+                        <p>Assess student clinical competencies using structured rubrics and review released evaluation records.</p>
+                    </div>
+                </div>
+
+                <div class="card" id="clinicalEvaluationCard">
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">RUBRIC-BASED ASSESSMENT</div>
+                            <h3>Clinical Performance Evaluation</h3>
+                        </div>
+                    </div>
+
+                    <form id="evaluationForm">
+                        <div class="form-group">
+                            <label for="evaluationStudent">Student</label>
+                            <select id="evaluationStudent" required>
+                                <option value="Nove Princess Balo">Nove Princess Balo</option>
+                                <option value="Cielo Venice Conol">Cielo Venice Conol</option>
+                                <option value="Alliah Vienne Aba-a">Alliah Vienne Aba-a</option>
+                                <option value="Francis Gabrielle Ricablanca">Francis Gabrielle Ricablanca</option>
+                                <option value="Azariah Joshua Farmer">Azariah Joshua Farmer</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="evaluationRotation">Clinical rotation</label>
+                            <select id="evaluationRotation" required>
+                                <option>Internal Medicine</option>
+                                <option>Surgery</option>
+                                <option>Pediatrics</option>
+                                <option>Obstetrics and Gynecology</option>
+                                <option>Emergency Department</option>
+                            </select>
+                        </div>
+
+                        <div id="evaluationCriteria"></div>
+
+                        <div class="form-group" style="margin-top:18px">
+                            <label for="evaluationComment">Evaluation comments</label>
+                            <textarea id="evaluationComment"
+                                      placeholder="Describe the student's strengths and areas for improvement..."
+                                      required></textarea>
+                        </div>
+
+                        <button type="submit" class="primary-button">Release evaluation</button>
+                    </form>
+                </div>
+
+                <div class="card" style="margin-top:16px">
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">ASSESSMENT RECORDS</div>
+                            <h3>Evaluation history</h3>
+                        </div>
+                    </div>
+                    <div id="evaluationHistory"></div>
+                </div>
+
+            </section>
+
+
+            <section class="page" id="page-feedback">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">TWO-WAY COMMUNICATION</div>
+                        <h1>Feedback</h1>
+                        <p>Share constructive comments, recommendations, and reflections between clinical instructors and students.</p>
+                    </div>
+                </div>
+
+                <div class="grid two-column">
+                    <div class="card" id="combinedFeedbackCard">
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">CONSTRUCTIVE FEEDBACK</div>
+                                <h3 id="feedbackFormHeading">Give feedback</h3>
+                            </div>
+                        </div>
+
+                        <form id="feedbackForm">
+                            <div class="form-group" id="feedbackStudentGroup">
+                                <label for="feedbackStudent">Student</label>
+                                <select id="feedbackStudent">
+                                    <option value="Nove Princess Balo">Nove Princess Balo</option>
+                                    <option value="Cielo Venice Conol">Cielo Venice Conol</option>
+                                    <option value="Alliah Vienne Aba-a">Alliah Vienne Aba-a</option>
+                                    <option value="Francis Gabrielle Ricablanca">Francis Gabrielle Ricablanca</option>
+                                    <option value="Azariah Joshua Farmer">Azariah Joshua Farmer</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="feedbackSubject">Subject</label>
+                                <input id="feedbackSubject" placeholder="e.g. Patient Case Reflection" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Overall rating</label>
+                                <div class="stars" id="feedbackStars">
+                                    <button type="button" class="star" data-rating="1" aria-label="1 star">★</button>
+                                    <button type="button" class="star" data-rating="2" aria-label="2 stars">★</button>
+                                    <button type="button" class="star" data-rating="3" aria-label="3 stars">★</button>
+                                    <button type="button" class="star" data-rating="4" aria-label="4 stars">★</button>
+                                    <button type="button" class="star" data-rating="5" aria-label="5 stars">★</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="feedbackComment">Feedback comments</label>
+                                <textarea id="feedbackComment"
+                                          placeholder="Share specific observations, recommendations, and next steps..."
+                                          required></textarea>
+                            </div>
+
+                            <button class="primary-button" type="submit">Send feedback</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">FEEDBACK RECORDS</div>
+                                <h3>Feedback history</h3>
+                            </div>
+                        </div>
+                        <div id="feedbackHistory"></div>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 ATTENDANCE
+            ========================================= -->
+
+            <section class="page" id="page-attendance">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">CLINICAL DUTY MANAGEMENT</div>
+                        <h1>Hospital Duty Attendance</h1>
+                        <p>Record and review student attendance during clinical rotations.</p>
+                    </div>
+                </div>
+
+                <div class="grid stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="attendancePresent">0</div>
+                        <div class="stat-label">Present</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="attendanceLate">0</div>
+                        <div class="stat-label">Late</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="attendanceAbsent">0</div>
+                        <div class="stat-label">Absent</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="attendanceRate">0%</div>
+                        <div class="stat-label">Attendance rate</div>
+                    </div>
+
+                </div>
+
+                <div class="card">
+
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">ATTENDANCE RECORDS</div>
+                            <h3>Clinical duty roster</h3>
+                        </div>
+
+                        <button class="small-button"
+                                onclick="exportAttendance()">
+                            Export CSV
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <select id="attendanceRotation"
+                                onchange="renderAttendance()">
+                            <option value="all">All rotations</option>
+                            <option>Internal Medicine</option>
+                            <option>Surgery</option>
+                            <option>Pediatrics</option>
+                            <option>Emergency Department</option>
+                        </select>
+
+                        <input id="attendanceDate" type="date"
+                               onchange="renderAttendance()">
+                    </div>
+
+                    <div id="attendanceTable"></div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 PORTFOLIO
+            ========================================= -->
+
+            <section class="page" id="page-portfolio">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">STUDENT DEVELOPMENT</div>
+                        <h1>Clinical Portfolio</h1>
+                        <p>Collect and organize your clinical learning achievements.</p>
+                    </div>
+
+                    <button class="small-button"
+                            onclick="navigate('activities')">
+                        Add clinical work
+                    </button>
+                </div>
+
+                <div class="grid stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="portfolioActivities">0</div>
+                        <div class="stat-label">Activities</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="portfolioEvaluations">0</div>
+                        <div class="stat-label">Evaluations</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-number">4.4/5</div>
+                        <div class="stat-label">Average clinical rating</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-number" id="portfolioFeedback">0</div>
+                        <div class="stat-label">Feedback received</div>
+                    </div>
+
+                </div>
+
+                <div class="card">
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">LEARNING RECORD</div>
+                            <h3>My clinical achievements</h3>
+                        </div>
+                    </div>
+
+                    <div id="portfolioList"></div>
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 FEEDBACK
+            ========================================= -->
+
+
+
+
+            <!-- =========================================
+                 ANNOUNCEMENTS
+            ========================================= -->
+
+            <section class="page" id="page-announcements">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">CLINICAL COMMUNICATION</div>
+                        <h1>Announcements</h1>
+                        <p>Stay updated on rotations, schedules, and requirements.</p>
+                    </div>
+
+                    <button class="small-button"
+                            id="announcementButton"
+                            onclick="openAnnouncementForm()">
+                        + Post announcement
+                    </button>
+                </div>
+
+                <div id="announcementFormCard"
+                     class="card" style="display:none;margin-bottom:18px">
+
+                    <form id="announcementForm">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="announcementTitle">Announcement title</label>
+                                <input id="announcementTitle" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="announcementCategory">Category</label>
+                                <select id="announcementCategory">
+                                    <option>General</option>
+                                    <option>Rotation</option>
+                                    <option>Reminders</option>
+                                    <option>Deadline</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="announcementContent">Message</label>
+                                <textarea id="announcementContent" required></textarea>
+                            </div>
+
+                        </div>
+
+                        <button class="primary-button" type="submit">
+                            Publish announcement
+                        </button>
+
+                        <button type="button"
+                                class="small-button secondary-button"
+                                onclick="openAnnouncementForm()">
+                            Cancel
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <div class="card">
+                    <div class="filter-bar">
+                        <select id="announcementFilter"
+                                onchange="renderAnnouncements()">
+                            <option value="all">All announcements</option>
+                            <option>General</option>
+                            <option>Rotation</option>
+                            <option>Reminders</option>
+                            <option>Deadline</option>
+                        </select>
+                    </div>
+
+                    <div id="announcementList"></div>
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 NOTIFICATIONS
+            ========================================= -->
+
+            <section class="page" id="page-notifications">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">UPDATES & REMINDERS</div>
+                        <h1>Notifications</h1>
+                        <p>Review important updates about your clinical learning.</p>
+                    </div>
+
+                    <button class="small-button secondary-button"
+                            onclick="markAllNotificationsRead()">
+                        Mark all as read
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="filter-bar">
+                        <select id="notificationFilter"
+                                onchange="renderNotifications()">
+                            <option value="all">All notifications</option>
+                            <option value="unread">Unread</option>
+                            <option value="read">Read</option>
+                        </select>
+                    </div>
+
+                    <div id="notificationList"></div>
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 PERFORMANCE ANALYZER
+            ========================================= -->
+
+            <section class="page" id="page-performance">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">CLINICAL PERFORMANCE ANALYTICS</div>
+                        <h1>Performance Analyzer</h1>
+                        <p id="performanceDescription">Review individual clinical competencies and progress.</p>
+                    </div>
+                    <div id="performanceStudentPicker" style="min-width:min(100%,260px)">
+                        <label for="performanceStudentSelect" style="display:block;font-size:10px;font-weight:700;margin-bottom:7px">SELECT STUDENT</label>
+                        <select id="performanceStudentSelect" onchange="renderPerformance()" style="width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:9px;background:white;color:var(--text)"></select>
+                    </div>
+                </div>
+
+                <div class="grid two-column">
+                    <div class="card">
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">OVERALL PERFORMANCE</div>
+                                <h3 id="performanceStudentHeading">Student competency overview</h3>
+                            </div>
+                            <span class="status progress" id="performanceEvaluationCount">0 evaluations</span>
+                        </div>
+                        <div class="performance-layout">
+                            <div class="donut" id="performanceDonut" style="background:conic-gradient(#e8e7f8 0% 100%)">
+                                <div class="donut-inner">
+                                    <strong id="performanceOverall">—</strong>
+                                    <span>OVERALL</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="eyebrow" style="margin-bottom:8px">EVALUATION TREND</div>
+                                <div class="chart" id="performanceChart"></div>
+                            </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="eyebrow" style="margin-bottom:12px">COMPETENCY BREAKDOWN</div>
+                        <div id="competencyBars"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-heading">
+                            <div>
+                                <div class="eyebrow">DEVELOPMENT PLAN</div>
+                                <h3>Strengths & areas for improvement</h3>
+                            </div>
+                        </div>
+                        <div id="performanceDevelopment"></div>
+                        <div class="divider"></div>
+                        <div class="eyebrow" style="margin-bottom:9px">LATEST INSTRUCTOR COMMENTS</div>
+                        <div id="performanceComments"></div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:16px">
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">ASSESSMENT HISTORY</div>
+                            <h3>Individual evaluation records</h3>
+                        </div>
+                    </div>
+                    <div class="table-wrap" id="performanceHistory"></div>
+                </div>
+            </section>
+
+
+            <!-- =========================================
+                 REPORTS
+            ========================================= -->
+
+            <section class="page" id="page-reports">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">RECORDS & ANALYTICS</div>
+                        <h1>Reports</h1>
+                        <p>Generate downloadable summaries of clinical education activities.</p>
+                    </div>
+                </div>
+
+                <div class="grid report-grid">
+
+                    <div class="report-card">
+                        <div class="stat-icon">▤</div>
+                        <div>
+                            <h3>Student Performance Report</h3>
+                            <p>Review evaluation results and competency scores.</p>
+                            <button class="link-button"
+                                    onclick="exportEvaluations()"
+                                    style="margin-top:12px">
+                                Export report →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="stat-icon aqua">✓</div>
+                        <div>
+                            <h3>Attendance Report</h3>
+                            <p>Export student attendance and clinical duty records.</p>
+                            <button class="link-button"
+                                    onclick="exportAttendance()"
+                                    style="margin-top:12px">
+                                Export report →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="stat-icon green">✉</div>
+                        <div>
+                            <h3>Feedback Summary</h3>
+                            <p>Download feedback records for review.</p>
+                            <button class="link-button"
+                                    onclick="exportFeedback()"
+                                    style="margin-top:12px">
+                                Export report →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="stat-icon orange">▣</div>
+                        <div>
+                            <h3>Activity Report</h3>
+                            <p>View and export clinical activity submissions.</p>
+                            <button class="link-button"
+                                    onclick="exportActivities()"
+                                    style="margin-top:12px">
+                                Export report →
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 SETTINGS
+            ========================================= -->
+
+            <section class="page" id="page-settings">
+
+                <div class="page-heading">
+                    <div>
+                        <div class="eyebrow">ACCOUNT MANAGEMENT</div>
+                        <h1>Settings</h1>
+                        <p>Manage your profile and application preferences.</p>
+                    </div>
+                </div>
+
+                <div class="card form-card">
+
+                    <div class="card-heading">
+                        <div>
+                            <div class="eyebrow">PERSONAL INFORMATION</div>
+                            <h3>Profile settings</h3>
+                        </div>
+                    </div>
+
+                    <form id="settingsForm">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="settingsName">Full name</label>
+                                <input id="settingsName" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="settingsEmail">Email address</label>
+                                <input id="settingsEmail" type="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="settingsRole">Account role</label>
+                                <input id="settingsRole" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="settingsRotation">Current rotation</label>
+                                <select id="settingsRotation">
+                                    <option>Internal Medicine</option>
+                                    <option>Surgery</option>
+                                    <option>Pediatrics</option>
+                                    <option>Emergency Department</option>
+                                    <option>Obstetrics and Gynecology</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="primary-button">
+                            Save changes
+                        </button>
+
+                    </form>
+
+                    <div class="divider" style="margin:25px 0"></div>
+
+                    <div class="settings-row">
+                        <div>
+                            <h4>Notification preferences</h4>
+                            <p>Receive updates about activities and feedback.</p>
+                        </div>
+
+                        <input type="checkbox" id="notificationsEnabled" checked>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <h4>Application information</h4>
+                            <p>ClinSync — Clinical Learning. Perfectly Connected.</p>
+                        </div>
+
+                        <span class="status progress">Live version</span>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <h4>Sign out</h4>
+                            <p>End your current session.</p>
+                        </div>
+
+                        <button class="small-button secondary-button"
+                                onclick="logout()">
+                            Log out
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+</div>
+
+
+<div id="toast-container"></div>
+
+
+<!-- =========================================
+     13. JAVASCRIPT
+========================================= -->
+
+<!-- Firebase SDK (compat build) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+
+/* =========================================
+   A. FIREBASE SETUP AND DATA LAYER
+========================================= */
+
+/*
+   STEP 1 - PASTE YOUR FIREBASE CONFIGURATION HERE
+   Firebase Console > Project settings > General > Your apps > Web app
+   > SDK setup and configuration > "Config".
+   Copy the values exactly as the console shows them (see FIREBASE_SETUP.md).
+*/
+const firebaseConfig = {
+    apiKey: "AIzaSyBh0B93H1Wb3h0YpOorNLxIafkyyWkztTo",
+    authDomain: "clinsynk.firebaseapp.com",
+    projectId: "clinsynk",
+    storageBucket: "clinsynk.firebasestorage.app",
+    messagingSenderId: "351506645235",
+    appId: "1:351506645235:web:bf258f5a25cf24a2693786",
+    measurementId: "G-7FBXD6JR4J"
+};
+
+/*
+   STEP 2 - PASTE YOUR RAILWAY FILE SERVER URL HERE (used for submission file uploads)
+   Example: "https://clinsync-files-production.up.railway.app"   (no trailing slash)
+   See RAILWAY_SETUP.md.
+*/
+const FILE_API_URL = "clinsync-production.up.railway.app";
+
+const FIREBASE_READY =
+    typeof firebase !== "undefined" &&
+    !/^PASTE_/.test(String(firebaseConfig.apiKey));
+
+let auth = null;
+let db = null;
+
+if (FIREBASE_READY) {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    /* Falls back to long-polling when a firewall, antivirus or extension blocks the default connection. */
+    db.settings({ experimentalAutoDetectLongPolling: true });
+}
+
+/* Firestore collection names (one collection per kind of record). */
+const STORAGE = {
+    users: "users",
+    activities: "activities",
+    evaluations: "evaluations",
+    feedback: "feedback",
+    announcements: "announcements",
+    notifications: "notifications",
+    attendance: "attendance"
+};
+
+/*
+   In-memory copy of the data the signed-in user is allowed to see.
+   Firestore real-time listeners keep it up to date, so the existing
+   getActivities() / getFeedback() / ... functions keep working unchanged.
+*/
+const cache = {};
+const loaded = {};
+const sources = {};
+
+Object.values(STORAGE).forEach(name => { cache[name] = []; });
+
+function plain(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function loadData(key, fallback = []) {
+    return cache[key] ? plain(cache[key]) : fallback;
+}
+
+/*
+   saveData() keeps its original signature. It compares the array it is given
+   with what is already stored and sends only the changed / removed records
+   to Firestore in one batch.
+*/
+function saveData(key, data) {
+
+    const previous = new Map((cache[key] || []).map(item => [String(item.id), item]));
+    const next = new Map(data.map(item => [String(item.id), item]));
+
+    cache[key] = data;
+
+    if (!db) return;
+
+    const batch = db.batch();
+    let changes = 0;
+
+    next.forEach((item, id) => {
+        if (JSON.stringify(previous.get(id)) !== JSON.stringify(item)) {
+            batch.set(db.collection(key).doc(id), plain(item));
+            changes++;
+        }
+    });
+
+    previous.forEach((item, id) => {
+        if (!next.has(id)) {
+            batch.delete(db.collection(key).doc(id));
+            changes++;
+        }
+    });
+
+    if (!changes) return;
+
+    batch.commit().catch(error => reportCloudError("save " + key, error));
+}
+
+function reportCloudError(action, error) {
+    console.error("ClinSync cloud error (" + action + "):", error);
+
+    const denied = error && error.code === "permission-denied";
+
+    toast(
+        denied
+            ? "Firebase blocked this action. Check that the security rules are published and that your account role allows it."
+            : ((error && error.message) || "A cloud request failed. Please try again."),
+        "error"
+    );
+}
+
+/* ---------- Real-time listeners ---------- */
+
+let unsubscribers = [];
+let renderTimer = null;
+let listenErrorShown = false;
+
+function stopListeners() {
+    unsubscribers.forEach(stop => { try { stop(); } catch (error) { /* ignore */ } });
+    unsubscribers = [];
+
+    Object.keys(sources).forEach(key => delete sources[key]);
+    Object.keys(loaded).forEach(key => delete loaded[key]);
+    Object.values(STORAGE).forEach(name => { cache[name] = []; });
+
+    clearTimeout(renderTimer);
+    listenErrorShown = false;
+}
+
+function rebuildCache(key) {
+
+    const merged = new Map();
+
+    Object.values(sources[key] || {}).forEach(group => {
+        group.forEach((value, id) => merged.set(id, value));
+    });
+
+    cache[key] = [...merged.values()].sort((a, b) => {
+        const first = Number(a.id);
+        const second = Number(b.id);
+        return Number.isFinite(first) && Number.isFinite(second) ? first - second : 0;
+    });
+}
+
+function listen(key, query, sourceName = "main") {
+
+    const stop = query.onSnapshot(snapshot => {
+
+        const group = new Map();
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            group.set(doc.id, { ...data, id: data.id !== undefined ? data.id : doc.id });
+        });
+
+        sources[key] = sources[key] || {};
+        sources[key][sourceName] = group;
+
+        rebuildCache(key);
+        loaded[key] = true;
+
+        scheduleRender();
+
+    }, error => {
+        console.error("Listener error for " + key, error);
+
+        if (!listenErrorShown && currentUser) {
+            listenErrorShown = true;
+            toast(
+                error.code === "permission-denied"
+                    ? "Firebase blocked loading " + key + ". Publish the security rules from firestore.rules."
+                    : "Could not load " + key + ": " + error.message,
+                "error"
+            );
+        }
+    });
+
+    unsubscribers.push(stop);
+}
+
+function startListeners() {
+
+    stopListeners();
+
+    if (!db || !currentUser) return;
+
+    const col = name => db.collection(name);
+    const me = currentUser;
+
+    if (me.role === "instructor") {
+
+        listen("users", col("users"));
+        listen("announcements", col("announcements"));
+        listen("activities", col("activities"));
+        listen("evaluations", col("evaluations"));
+        listen("feedback", col("feedback"));
+        listen("notifications", col("notifications"));
+        listen("attendance", col("attendance"));
+
+    } else {
+
+        listen("users", col("users").where("role", "==", "instructor"));
+        listen("announcements", col("announcements"));
+        listen("activities", col("activities").where("student", "==", me.name));
+        listen("evaluations", col("evaluations").where("student", "==", me.name));
+        listen("attendance", col("attendance").where("student", "==", me.name));
+        listen("feedback", col("feedback").where("to", "==", me.name), "to");
+        listen("feedback", col("feedback").where("from", "==", me.name), "from");
+        listen("notifications", col("notifications").where("recipientName", "==", me.name), "name");
+        listen("notifications", col("notifications").where("recipientRole", "==", me.role), "role");
+        listen("notifications", col("notifications").where("recipientEmail", "==", me.email), "email");
+    }
+}
+
+function scheduleRender() {
+
+    clearTimeout(renderTimer);
+
+    renderTimer = setTimeout(() => {
+        if (!currentUser) return;
+        populateStudentSelects();
+        ensureTodayAttendance();
+        renderAll();
+    }, 60);
+}
+
+/* Instructor drop-downs list the students who have registered. */
+function populateStudentSelects() {
+
+    const students = getUsers()
+        .filter(user => user.role === "student" && user.name)
+        .map(user => user.name)
+        .sort((a, b) => a.localeCompare(b));
+
+    ["newActivityStudent", "evaluationStudent", "feedbackStudent"].forEach(id => {
+
+        const select = document.getElementById(id);
+        if (!select) return;
+
+        const current = select.value;
+
+        select.innerHTML = students.length
+            ? students.map(name =>
+                `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`
+            ).join("")
+            : `<option value="">No registered students yet</option>`;
+
+        if (students.includes(current)) select.value = current;
+    });
+}
+
+/*
+   Gives every registered student a roster line for today (status "Pending")
+   so the instructor can mark Present / Late / Absent with the Update button.
+*/
+const attendanceEnsured = new Set();
+
+function ensureTodayAttendance() {
+
+    if (!db || !currentUser || currentUser.role !== "instructor") return;
+    if (!loaded.users || !loaded.attendance) return;
+
+    const today = todayISO();
+    const existing = new Set(cache.attendance.map(record => String(record.id)));
+    const batch = db.batch();
+    let changes = 0;
+
+    cache.users
+        .filter(user => user.role === "student")
+        .forEach(user => {
+
+            const id = today + "_" + user.id;
+
+            if (existing.has(id) || attendanceEnsured.has(id)) return;
+
+            attendanceEnsured.add(id);
+
+            batch.set(db.collection("attendance").doc(id), {
+                id,
+                student: user.name,
+                studentUid: user.id,
+                rotation: user.rotation || "Internal Medicine",
+                date: today,
+                status: "Pending",
+                time: "—"
+            });
+
+            changes++;
+        });
+
+    if (changes) {
+        batch.commit().catch(error => reportCloudError("create the attendance roster", error));
+    }
+}
+
+/* ---------- Uploaded submission files (Railway file server) ---------- */
+
+function fileApiBase() {
+    if (/^PASTE_/.test(FILE_API_URL)) {
+        throw new Error("The file server is not set up yet. Paste your Railway URL into FILE_API_URL (see RAILWAY_SETUP.md).");
+    }
+    return FILE_API_URL.replace(/\/+$/, "");
+}
+
+async function fileApiHeaders() {
+    if (!auth || !auth.currentUser) throw new Error("Please sign in again.");
+    return { Authorization: "Bearer " + await auth.currentUser.getIdToken() };
+}
+
+async function fileApiError(response, fallback) {
+    try {
+        const body = await response.json();
+        if (body && body.error) return body.error;
+    } catch (error) { /* not JSON */ }
+    return fallback + " (" + response.status + ")";
+}
+
+async function saveSubmissionFile(activityId, file) {
+
+    const form = new FormData();
+    form.append("file", file);
+
+    const response = await fetch(
+        fileApiBase() + "/upload/" + encodeURIComponent(activityId),
+        { method: "POST", headers: await fileApiHeaders(), body: form }
+    );
+
+    if (!response.ok) {
+        throw new Error(await fileApiError(response, "The file could not be uploaded"));
+    }
+
+    return true;
+}
+
+async function openSubmissionFile(activityId, download = false) {
+
+    /* Open the tab immediately so the browser does not treat it as a blocked pop-up. */
+    const tab = download ? null : window.open("", "_blank");
+
+    try {
+
+        const activity = getActivities().find(item => String(item.id) === String(activityId));
+
+        if (!activity || !activity.fileName) {
+            throw new Error("No file is attached to this submission.");
+        }
+
+        const response = await fetch(
+            fileApiBase() + "/files/" + encodeURIComponent(activityId),
+            { headers: await fileApiHeaders() }
+        );
+
+        if (!response.ok) {
+            throw new Error(await fileApiError(response, "The file could not be opened"));
+        }
+
+        const url = URL.createObjectURL(await response.blob());
+
+        if (download) {
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = activity.fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } else if (tab) {
+            tab.opener = null;
+            tab.location = url;
+        }
+
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+    } catch (error) {
+        if (tab) tab.close();
+        toast(error.message || "Unable to open the submission file.", "error");
+    }
+}
+
+/* ---------- Small helpers (unchanged) ---------- */
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[char]);
+}
+
+function initials(name) {
+    return String(name || "User")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part[0])
+        .join("")
+        .toUpperCase();
+}
+
+function todayISO() {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+}
+
+function prettyDate(date) {
+    if (!date) return "No date";
+    const parsed = new Date(date + "T12:00:00");
+
+    if (Number.isNaN(parsed.getTime())) return date;
+
+    return parsed.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+    });
+}
+
+function getUsers() {
+    return loadData(STORAGE.users, []);
+}
+
+function getActivities() {
+    return loadData(STORAGE.activities, []);
+}
+
+function getEvaluations() {
+    return loadData(STORAGE.evaluations, []);
+}
+
+function getFeedback() {
+    return loadData(STORAGE.feedback, []);
+}
+
+function getAnnouncements() {
+    return loadData(STORAGE.announcements, []);
+}
+
+function getNotifications() {
+    return loadData(STORAGE.notifications, []);
+}
+
+function getAttendance() {
+    return loadData(STORAGE.attendance, []);
+}
+
+
+/* =========================================
+   C. APPLICATION STATE
+========================================= */
+
+let currentUser = null;
+let feedbackRating = 5;
+
+const navigationItems = [
+    { id: "Dashboard", icon: "▦", label: "Overview", roles: ["student", "instructor"] },
+    { id: "activities", icon: "↗", label: "Activities", roles: ["student", "instructor"] },
+    { id: "submissions", icon: "▤", label: "Submissions", roles: ["instructor"] },
+    { id: "evaluations", icon: "▥", label: "Evaluations", roles: ["student", "instructor"] },
+    { id: "feedback", icon: "✉", label: "Feedback", roles: ["student", "instructor"] },
+    { id: "attendance", icon: "▣", label: "Attendance", roles: ["student", "instructor"] },
+    { id: "portfolio", icon: "▢", label: "Portfolio", roles: ["student"] },
+    { id: "performance", icon: "▥", label: "Performance Analyzer", roles: ["student", "instructor"] },
+    { id: "announcements", icon: "♢", label: "Announcements", roles: ["student", "instructor"] },
+    { id: "notifications", icon: "♧", label: "Notifications", roles: ["student", "instructor"] },
+    { id: "reports", icon: "▤", label: "Reports", roles: ["instructor"] },
+    { id: "settings", icon: "⚙", label: "Settings", roles: ["student", "instructor"] }
+];
+
+function dashboardPage() {
+    return currentUser?.role === "instructor"
+        ? "instructorDashboard"
+        : "studentDashboard";
+}
+
+function currentRoleLabel() {
+    return currentUser?.role === "instructor"
+        ? "Clinical Instructor"
+        : "Student";
+}
+
+
+/* =========================================
+   D. INTRO AND AUTHENTICATION (FIREBASE AUTH)
+========================================= */
+
+function showAuthScreen() {
+    document.getElementById("auth").style.display = "flex";
+    showAuthForm("login");
+}
+
+function showAuthForm(form) {
+
+    document.getElementById("loginForm").style.display =
+        form === "login" ? "block" : "none";
+
+    document.getElementById("signupForm").style.display =
+        form === "signup" ? "block" : "none";
+
+    document.getElementById("loginMessage").classList.remove("show");
+    document.getElementById("signupMessage").classList.remove("show");
+}
+
+function showAuthMessage(id, text) {
+    const message = document.getElementById(id);
+    message.textContent = text;
+    message.classList.add("show");
+}
+
+function showSetupMessage(id) {
+    showAuthMessage(
+        id,
+        "Firebase is not configured yet. Open this file, paste your Firebase web-app settings into firebaseConfig, and reload (see FIREBASE_SETUP.md)."
+    );
+}
+
+function setFormBusy(form, busy, label) {
+    const button = form.querySelector('button[type="submit"]');
+    if (!button) return;
+
+    if (busy) {
+        button.dataset.label = button.textContent;
+        button.disabled = true;
+        button.textContent = label || "Please wait...";
+    } else {
+        button.disabled = false;
+        if (button.dataset.label) button.textContent = button.dataset.label;
+    }
+}
+
+function authErrorMessage(error) {
+    switch (error && error.code) {
+        case "auth/invalid-credential":
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+            return "Invalid email or password.";
+        case "auth/invalid-email":
+            return "Please enter a valid email address.";
+        case "auth/email-already-in-use":
+            return "This email is already registered. Please log in.";
+        case "auth/weak-password":
+            return "Your password must contain at least 6 characters.";
+        case "auth/too-many-requests":
+            return "Too many attempts. Please wait a few minutes and try again.";
+        case "auth/network-request-failed":
+            return "Network error. Check your internet connection and try again.";
+        case "auth/user-disabled":
+            return "This account has been disabled.";
+        case "auth/operation-not-allowed":
+            return "Email/Password sign-in is not enabled in your Firebase project.";
+        case "auth/operation-not-supported-in-this-environment":
+            return "Open this page through http://localhost or your hosted URL. Firebase Auth does not work from a file:// address.";
+        case "clinsync/timeout":
+            return "Could not reach Firestore. In the Firebase Console create the database (Build > Firestore Database) and publish firestore.rules, then try again.";
+        case "unavailable":
+        case "failed-precondition":
+            return "Firestore is not available yet. Create the Firestore database in the Firebase Console and publish firestore.rules.";
+        case "clinsync/name-taken":
+            return "This full name is already registered, or the Firestore security rules have not been published yet.";
+        default:
+            return (error && error.message) || "Something went wrong. Please try again.";
+    }
+}
+
+/* Build a profile name key so two accounts cannot share the same full name. */
+function nameKey(name) {
+    return String(name).trim().toLowerCase().replace(/\s+/g, " ").replace(/\//g, "-");
+}
+
+/* Stops a hung cloud request (for example, Firestore not created yet) from leaving a blank screen. */
+function withTimeout(promise, ms = 12000) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            reject(Object.assign(new Error("timeout"), { code: "clinsync/timeout" }));
+        }, ms);
+        promise.then(
+            value => { clearTimeout(timer); resolve(value); },
+            error => { clearTimeout(timer); reject(error); }
+        );
+    });
+}
+
+async function fetchProfile(uid) {
+    const snapshot = await db.collection("users").doc(uid).get();
+    return snapshot.exists ? { ...snapshot.data(), id: uid, uid } : null;
+}
+
+async function createProfile(firebaseUser, name, role) {
+
+    const profile = {
+        id: firebaseUser.uid,
+        name,
+        email: String(firebaseUser.email || "").toLowerCase(),
+        role,
+        rotation: "Internal Medicine",
+        notificationsEnabled: true,
+        createdAt: new Date().toISOString()
+    };
+
+    const batch = db.batch();
+
+    batch.set(db.collection("users").doc(firebaseUser.uid), profile);
+    batch.set(db.collection("userNames").doc(nameKey(name)), {
+        uid: firebaseUser.uid,
+        name
+    });
+
+    await batch.commit();
+
+    return { ...profile, uid: firebaseUser.uid };
+}
+
+let authWatcherStarted = false;
+
+function watchAuthChanges() {
+    if (authWatcherStarted || !auth) return;
+    authWatcherStarted = true;
+
+    /* If the session ends elsewhere (another tab, token revoked), return to login. */
+    auth.onAuthStateChanged(user => {
+        if (!user && currentUser) leaveApplication(false);
+    });
+}
+
+window.addEventListener("load", () => {
+
+    const intro = document.getElementById("intro");
+    const introDelay = new Promise(resolve => setTimeout(resolve, 2400));
+
+    const firstAuthState = auth
+        ? new Promise(resolve => {
+            let stop = null;
+            stop = auth.onAuthStateChanged(user => {
+                if (stop) stop();
+                resolve(user);
+            }, () => resolve(null));
+        })
+        : Promise.resolve(null);
+
+    Promise.all([introDelay, firstAuthState]).then(async ([, firebaseUser]) => {
+
+        let loadError = null;
+
+        intro.classList.add("hide");
+
+        if (!FIREBASE_READY) {
+            showAuthScreen();
+            showSetupMessage("loginMessage");
+            return;
+        }
+
+        if (firebaseUser) {
+            try {
+                const profile = await withTimeout(fetchProfile(firebaseUser.uid));
+
+                if (profile) {
+                    enterApplication(profile);
+                    watchAuthChanges();
+                    return;
+                }
+            } catch (error) {
+                console.error(error);
+                loadError = error;
+            }
+
+            await auth.signOut().catch(() => {});
+        }
+
+        showAuthScreen();
+        if (loadError) showAuthMessage("loginMessage", authErrorMessage(loadError));
+        watchAuthChanges();
+    }).catch(error => {
+        console.error(error);
+        intro.classList.add("hide");
+        showAuthScreen();
+    });
+});
+
+async function forgotPassword() {
+
+    const email = document.getElementById("loginEmail").value.trim();
+
+    if (!FIREBASE_READY) {
+        showSetupMessage("loginMessage");
+        return;
+    }
+
+    if (!email) {
+        toast("Enter your email address first.", "error");
+        document.getElementById("loginEmail").focus();
+        return;
+    }
+
+    try {
+        await auth.sendPasswordResetEmail(email);
+        toast("If an account exists for that email, a password reset link has been sent.", "success");
+    } catch (error) {
+        if (error.code === "auth/user-not-found") {
+            toast("If an account exists for that email, a password reset link has been sent.", "success");
+        } else {
+            toast(authErrorMessage(error), "error");
+        }
+    }
+}
+
+document.getElementById("signupForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const name = document.getElementById("signupName").value.trim().replace(/\s+/g, " ");
+    const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+    const role = document.getElementById("signupRole").value;
+    const password = document.getElementById("signupPassword").value;
+    const confirm = document.getElementById("signupConfirm").value;
+
+    document.getElementById("signupMessage").classList.remove("show");
+
+    if (!FIREBASE_READY) {
+        showSetupMessage("signupMessage");
+        return;
+    }
+
+    if (password.length < 6) {
+        showAuthMessage("signupMessage", "Your password must contain at least 6 characters.");
+        return;
+    }
+
+    if (password !== confirm) {
+        showAuthMessage("signupMessage", "Your passwords do not match.");
+        return;
+    }
+
+    setFormBusy(form, true, "Creating account...");
+
+    try {
+
+        const credential = await auth.createUserWithEmailAndPassword(email, password);
+
+        try {
+            await withTimeout(createProfile(credential.user, name, role));
+        } catch (profileError) {
+            /* Roll back the new login so the person can try again. */
+            await credential.user.delete().catch(() => {});
+            throw profileError.code === "permission-denied"
+                ? Object.assign(new Error("name-taken"), { code: "clinsync/name-taken" })
+                : profileError;
+        }
+
+        await credential.user.updateProfile({ displayName: name }).catch(() => {});
+        await auth.signOut();
+
+        form.reset();
+
+        toast("Account created successfully!", "success");
+
+        document.getElementById("loginEmail").value = email;
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("loginRole").value = role;
+
+        showAuthForm("login");
+
+        showAuthMessage("loginMessage", "Your account has been created. Please sign in.");
+
+    } catch (error) {
+        showAuthMessage("signupMessage", authErrorMessage(error));
+    } finally {
+        setFormBusy(form, false);
+    }
+});
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+    const password = document.getElementById("loginPassword").value;
+    const role = document.getElementById("loginRole").value;
+    const remember = document.getElementById("rememberMe").checked;
+
+    document.getElementById("loginMessage").classList.remove("show");
+
+    if (!FIREBASE_READY) {
+        showSetupMessage("loginMessage");
+        return;
+    }
+
+    setFormBusy(form, true, "Signing in...");
+
+    try {
+
+        await auth.setPersistence(
+            remember
+                ? firebase.auth.Auth.Persistence.LOCAL
+                : firebase.auth.Auth.Persistence.SESSION
+        );
+
+        const credential = await auth.signInWithEmailAndPassword(email, password);
+
+        let profile = await withTimeout(fetchProfile(credential.user.uid));
+
+        /* Accounts created directly in the Firebase console get a profile on first login. */
+        if (!profile) {
+            profile = await withTimeout(createProfile(
+                credential.user,
+                credential.user.displayName || email.split("@")[0],
+                role
+            ));
+        }
+
+        if (profile.role !== role) {
+            await auth.signOut();
+
+            showAuthMessage(
+                "loginMessage",
+                "This account is registered as a " +
+                (profile.role === "instructor" ? "Clinical Instructor" : "Student") +
+                ". Change \"Sign in as\" and try again."
+            );
+
+            return;
+        }
+
+        document.getElementById("loginPassword").value = "";
+
+        enterApplication(profile);
+
+    } catch (error) {
+        showAuthMessage("loginMessage", authErrorMessage(error));
+    } finally {
+        setFormBusy(form, false);
+    }
+});
+
+function enterApplication(user) {
+
+    currentUser = { ...user, uid: user.uid || user.id };
+
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    updateUserInterface();
+
+    navigate(dashboardPage());
+
+    startListeners();
+
+    renderAll();
+
+    toast("Welcome to ClinSync, " + user.name + "!", "success");
+}
+
+function logout() {
+    leaveApplication(true);
+}
+
+function leaveApplication(callSignOut) {
+
+    stopListeners();
+
+    currentUser = null;
+
+    if (callSignOut && auth) {
+        auth.signOut().catch(error => console.error(error));
+    }
+
+    document.getElementById("app").style.display = "none";
+    document.getElementById("auth").style.display = "flex";
+
+    document.getElementById("loginPassword").value = "";
+
+    showAuthForm("login");
+
+    document.getElementById("sidebar").classList.remove("open");
+
+    toast("You have been signed out.", "success");
+}
+
+
+/* =========================================
+   E. SIDEBAR AND NAVIGATION
+========================================= */
+
+function updateUserInterface() {
+
+    const name = currentUser.name;
+    const role = currentRoleLabel();
+    const avatar = initials(name);
+
+    document.getElementById("sidebarName").textContent = name;
+    document.getElementById("sidebarRole").textContent = role;
+    document.getElementById("sidebarAvatar").textContent = avatar;
+
+    document.getElementById("topbarName").textContent = name;
+    document.getElementById("topbarRole").textContent = role;
+    document.getElementById("topbarAvatar").textContent = avatar;
+
+    document.getElementById("studentGreeting").textContent =
+        "Good morning, " + name + ".";
+
+    document.getElementById("instructorGreeting").textContent =
+        "Good morning, " + name + ".";
+
+    document.getElementById("settingsName").value = name;
+    document.getElementById("settingsEmail").value = currentUser.email;
+    document.getElementById("settingsName").readOnly = true;
+    document.getElementById("settingsEmail").readOnly = true;
+    document.getElementById("settingsRole").value = role;
+    const rotationSetting = document.getElementById("settingsRotation");
+    if (rotationSetting) rotationSetting.value = currentUser.rotation || "Internal Medicine";
+    const notificationSetting = document.getElementById("notificationsEnabled");
+    if (notificationSetting) notificationSetting.checked = currentUser.notificationsEnabled !== false;
+
+    renderNavigation();
+}
+
+function renderNavigation() {
+
+    const navigation = document.getElementById("mainNavigation");
+
+    navigation.innerHTML = navigationItems
+        .filter(item => item.roles.includes(currentUser.role))
+        .map(item => {
+
+            const pageId = item.id === "Dashboard"
+                ? dashboardPage()
+                : item.id;
+
+            let count = "";
+
+            if (item.id === "notifications") {
+                const unread = getNotifications().filter(item =>
+                    !item.read && (
+                        (!item.recipientEmail && !item.recipientName && !item.recipientRole) ||
+                        item.recipientEmail === currentUser.email ||
+                        item.recipientName === currentUser.name ||
+                        item.recipientRole === currentUser.role
+                    )
+                ).length;
+
+                if (unread > 0) {
+                    count = `<span class="nav-count">${unread}</span>`;
+                }
+            }
+
+            return `
+                <button class="nav-link"
+                        data-page="${pageId}"
+                        onclick="navigate('${pageId}')">
+
+                    <span class="nav-icon">${item.icon}</span>
+                    <span>${escapeHTML(item.label)}</span>
+                    ${count}
+
+                </button>
+            `;
+
+        }).join("");
+}
+
+function navigate(pageId) {
+
+    if (!currentUser) return;
+
+    const allowedPages = [
+        "studentDashboard",
+        "instructorDashboard",
+        ...navigationItems
+            .filter(item => item.roles.includes(currentUser.role))
+            .map(item => item.id)
+    ];
+
+    if (!allowedPages.includes(pageId)) {
+        toast("This section is not available for your account role.", "error");
+        return;
+    }
+
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
+
+    const page = document.getElementById("page-" + pageId);
+
+    if (!page) return;
+
+    page.classList.add("active");
+
+    document.querySelectorAll(".nav-link").forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.page === pageId
+        );
+    });
+
+    const item = navigationItems.find(nav => nav.id === pageId);
+
+    document.getElementById("topbarTitle").textContent =
+        pageId === dashboardPage()
+            ? "Overview"
+            : item?.label || "Overview";
+
+    document.getElementById("sidebar").classList.remove("open");
+
+    if (pageId === "attendance") renderAttendance();
+    if (pageId === "activities") renderActivities();
+    if (pageId === "submissions") renderSubmissions();
+    if (pageId === "evaluations") renderEvaluations();
+    if (pageId === "feedback") renderFeedback();
+    if (pageId === "announcements") renderAnnouncements();
+    if (pageId === "notifications") renderNotifications();
+    if (pageId === "portfolio") renderPortfolio();
+    if (pageId === "performance") renderPerformance();
+}
+
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("open");
+}
+
+
+/* =========================================
+   F. TOAST MESSAGES
+========================================= */
+
+function toast(message, type = "success") {
+
+    const container = document.getElementById("toast-container");
+    const element = document.createElement("div");
+
+    element.className = "toast " + type;
+    element.textContent = message;
+
+    container.appendChild(element);
+
+    setTimeout(() => {
+        element.remove();
+    }, 3500);
+}
+
+
+/* =========================================
+   G. DASHBOARD RENDERING
+========================================= */
+
+function makeChart(containerId, values) {
+
+    const container = document.getElementById(containerId);
+
+    if (!container) return;
+
+    const labels = ["Mar 04", "Mar 18", "Apr 02", "Apr 16", "May 01", "Today"];
+
+    container.innerHTML = values.map((value, index) => `
+        <div class="bar-wrap">
+            <div class="bar" style="height:${value}%"></div>
+            <div class="bar-label">${labels[index]}</div>
+        </div>
+    `).join("");
+}
+
+function renderDashboard() {
+
+    makeChart("studentChart", [58, 65, 62, 72, 79, 88]);
+    makeChart("instructorChart", [58, 65, 62, 72, 79, 88]);
+
+    const activities = getActivities();
+
+    const mine = activities.filter(item =>
+        item.student === currentUser.name
+    );
+
+    document.getElementById("studentUpcoming").innerHTML = mine.length
+        ? mine.map(item => `
+            <div class="list-row">
+
+                <div class="list-icon ${item.status === "Submitted" ? "green" : ""}">
+                    ▤
+                </div>
+
+                <div class="list-main">
+                    <strong>${escapeHTML(item.title)}</strong>
+                    <span>${escapeHTML(item.type)}</span>
+                </div>
+
+                <div class="list-end">
+                    <span class="status ${item.status === "Submitted" || item.status === "Reviewed" ? "" : "progress"}">
+                        ${escapeHTML(item.status)}
+                    </span>
+
+                    <small>Due ${escapeHTML(prettyDate(item.due))}</small>
+                </div>
+
+            </div>
+        `).join("")
+        : `<div class="empty-state">No activities yet.</div>`;
+
+    const feedback = getFeedback()
+        .filter(item => item.to === currentUser.name)
+        .slice()
+        .reverse();
+
+    document.getElementById("studentLatestFeedback").innerHTML = `
+        ${feedback.slice(0, 2).map(item => `
+            <div class="notification-item">
+
+                <div class="avatar">${escapeHTML(initials(item.from))}</div>
+
+                <div>
+                    <h4>${escapeHTML(item.from)}
+                        <span class="status">${item.rating}/5</span>
+                    </h4>
+
+                    <p>${escapeHTML(item.comment)}</p>
+
+                    <small>${escapeHTML(item.subject)} · ${escapeHTML(prettyDate(item.date))}</small>
+                </div>
+
+            </div>
+        `).join("")}
+
+        ${feedback.length === 0
+            ? `<div class="empty-state">No feedback received yet.</div>`
+            : ""}
+
+        <div class="divider"></div>
+
+        <button class="link-button"
+                onclick="navigate('announcements')">
+            View announcements →
+        </button>
+    `;
+
+    const students = [...new Set(
+        activities.map(item => item.student)
+    )];
+
+    const pending = activities.filter(item =>
+        item.status === "Submitted"
+    ).length;
+
+    const evaluations = getEvaluations();
+
+    document.getElementById("totalStudents").textContent =
+        getUsers().filter(user => user.role === "student").length;
+
+    document.getElementById("pendingSubmissions").textContent = pending;
+
+    document.getElementById("pendingEvaluations").textContent =
+        Math.max(0, students.length - evaluations.length);
+
+    document.getElementById("todayActivities").textContent =
+        activities.filter(item => item.due === todayISO()).length;
+
+    document.getElementById("instructorRecentSubmissions").innerHTML =
+        activities.filter(item =>
+            item.status === "Submitted" || item.status === "Reviewed"
+        ).slice(0, 5).map(item => `
+            <div class="list-row">
+
+                <div class="avatar">${escapeHTML(initials(item.student))}</div>
+
+                <div class="list-main">
+                    <strong>${escapeHTML(item.student)}</strong>
+                    <span>${escapeHTML(item.title)}</span>
+                </div>
+
+                <div class="list-end">
+                    <span class="status ${item.status === "Reviewed" ? "" : "pending"}">
+                        ${escapeHTML(item.status)}
+                    </span>
+                </div>
+
+            </div>
+        `).join("");
+
+    renderAttendanceStats();
+}
+
+
+/* =========================================
+   H. ACTIVITIES
+========================================= */
+
+function openActivityForm() {
+    if (!currentUser || currentUser.role !== "instructor") {
+        toast("Only clinical instructors can create and assign activities.", "error");
+        return;
+    }
+
+    const card = document.getElementById("activityFormCard");
+    if (!card) return;
+
+    const isHidden = getComputedStyle(card).display === "none";
+    card.style.display = isHidden ? "block" : "none";
+
+    if (isHidden) {
+        const dueInput = document.getElementById("newActivityDue");
+        if (dueInput && !dueInput.value) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dueInput.value = new Date(tomorrow.getTime() - tomorrow.getTimezoneOffset() * 60000)
+                .toISOString().slice(0, 10);
+        }
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
+
+document.getElementById("createActivityForm").addEventListener("submit", event => {
+    event.preventDefault();
+
+    if (!currentUser || currentUser.role !== "instructor") {
+        toast("Only clinical instructors can publish activities.", "error");
+        return;
+    }
+
+    const student = document.getElementById("newActivityStudent").value;
+    const title = document.getElementById("newActivityTitle").value.trim();
+    const type = document.getElementById("newActivityType").value;
+    const rotation = document.getElementById("newActivityRotation").value;
+    const due = document.getElementById("newActivityDue").value;
+    const description = document.getElementById("newActivityDescription").value.trim();
+
+    if (!student || !title || !type || !rotation || !due || !description) {
+        toast("Please complete all activity details.", "error");
+        return;
+    }
+
+    if (due < todayISO()) {
+        toast("The deadline cannot be earlier than today.", "error");
+        return;
+    }
+
+    const activities = getActivities();
+    activities.push({
+        id: Date.now(),
+        student,
+        title,
+        type,
+        rotation,
+        description,
+        due,
+        status: "Not started",
+        createdAt: todayISO(),
+        createdBy: currentUser.name,
+        submittedAt: "",
+        fileName: "",
+        notes: "",
+        instructorComment: ""
+    });
+
+    saveData(STORAGE.activities, activities);
+    addNotification(
+        "New clinical activity assigned",
+        `"${title}" has been assigned to you. Deadline: ${prettyDate(due)}.`,
+        { name: student }
+    );
+
+    document.getElementById("createActivityForm").reset();
+    document.getElementById("activityFormCard").style.display = "none";
+    renderAll();
+    toast(`Activity assigned to ${student}.`, "success");
+});
+
+function renderActivities() {
+
+    const container = document.getElementById("activityList");
+
+    if (!container) return;
+
+    const createButton = document.getElementById("newActivityButton");
+    const createForm = document.getElementById("activityFormCard");
+    if (createButton) createButton.style.display =
+        currentUser.role === "instructor" ? "inline-flex" : "none";
+    if (createForm && currentUser.role !== "instructor") {
+        createForm.style.display = "none";
+    }
+
+    const query = (
+        document.getElementById("activitySearch")?.value || ""
+    ).toLowerCase();
+
+    const filter =
+        document.getElementById("activityFilter")?.value || "all";
+
+    let activities = getActivities();
+
+    if (currentUser.role === "student") {
+        activities = activities.filter(item =>
+            item.student === currentUser.name
+        );
+    }
+
+    activities = activities.filter(item => {
+
+        const matchesSearch =
+            item.title.toLowerCase().includes(query) ||
+            item.student.toLowerCase().includes(query) ||
+            item.type.toLowerCase().includes(query);
+
+        const matchesStatus =
+            filter === "all" || item.status === filter;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    container.innerHTML = activities.length
+        ? activities.map(item => `
+
+            <div class="activity-card">
+
+                <div class="list-icon">${item.status === "Submitted" ? "✓" : "▤"}</div>
+
+                <div style="flex:1;min-width:0">
+
+                    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                        <h3>${escapeHTML(item.title)}</h3>
+
+                        <span class="status ${item.status === "Submitted" || item.status === "Reviewed" ? "" : "progress"}">
+                            ${escapeHTML(item.status)}
+                        </span>
+                    </div>
+
+                    <p>
+                        ${escapeHTML(item.type)} ·
+                        ${escapeHTML(item.rotation)}
+                    </p>
+
+                    <p>${escapeHTML(item.description || "")}</p>
+
+                    <p>
+                        ${currentUser.role === "instructor"
+                            ? "Student: " + escapeHTML(item.student) + " · "
+                            : ""}
+                        Due: ${escapeHTML(prettyDate(item.due))}
+                    </p>
+
+                    ${item.instructorComment ? `
+                        <p style="margin-top:8px">
+                            <strong>Instructor feedback:</strong>
+                            ${escapeHTML(item.instructorComment)}
+                        </p>
+                    ` : ""}
+
+                    <div class="activity-actions">
+
+                        ${currentUser.role === "student" &&
+                          item.status !== "Reviewed" ? `
+
+                            <button class="small-button"
+                                    onclick="submitActivity(${item.id})">
+                                ${item.status === "Submitted" ? "Update submission" : "Submit work"}
+                            </button>
+
+                            <button class="small-button secondary-button"
+                                    onclick="changeActivityStatus(${item.id})">
+                                Update status
+                            </button>
+
+                        ` : ""}
+
+                        ${currentUser.role === "instructor" ? `
+                            <button class="small-button"
+                                    onclick="reviewActivity(${item.id})">
+                                Review submission
+                            </button>
+                        ` : ""}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `).join("")
+        : `<div class="empty-state">No activities match your search.</div>`;
+}
+
+function submitActivity(id) {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt";
+
+    fileInput.onchange = async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            toast("Please select a file smaller than 10 MB.", "error");
+            return;
+        }
+
+        const activity = getActivities().find(item =>
+            item.id === id && item.student === currentUser.name
+        );
+        if (!activity) {
+            toast("This activity does not belong to your account.", "error");
+            return;
+        }
+
+        const notes = prompt("Add notes for your instructor:", activity.notes || "") ?? "";
+
+        try {
+            await saveSubmissionFile(id, file);
+
+            const activities = getActivities();
+            const savedActivity = activities.find(item => item.id === id);
+            savedActivity.fileName = file.name;
+            savedActivity.fileSize = file.size;
+            savedActivity.notes = notes;
+            savedActivity.status = "Submitted";
+            savedActivity.submittedAt = todayISO();
+            savedActivity.reviewedAt = "";
+            savedActivity.instructorComment = "";
+
+            saveData(STORAGE.activities, activities);
+            addNotification(
+                "New student submission",
+                `${currentUser.name} submitted "${activity.title}" for review.`,
+                { role: "instructor" }
+            );
+
+            renderAll();
+            toast("Your file was uploaded and submitted successfully.", "success");
+        } catch (error) {
+            toast(error.message || "The file could not be saved. Please try again.", "error");
+        }
+    };
+
+    fileInput.click();
+}
+
+function changeActivityStatus(id) {
+
+    const activities = getActivities();
+
+    const activity = activities.find(item =>
+        item.id === id && item.student === currentUser.name
+    );
+
+    if (!activity) return;
+
+    const next = prompt(
+        "Enter status: Not started, In progress, or Submitted",
+        activity.status
+    );
+
+    const allowed = ["Not started", "In progress", "Submitted"];
+
+    if (!allowed.includes(next)) {
+        toast("Choose a valid activity status.", "error");
+        return;
+    }
+
+    activity.status = next;
+
+    if (next === "Submitted") {
+        activity.submittedAt = todayISO();
+    }
+
+    saveData(STORAGE.activities, activities);
+
+    renderAll();
+
+    toast("Activity status updated.", "success");
+}
+
+function reviewActivity(id) {
+    if (currentUser.role !== "instructor") {
+        toast("Only clinical instructors can review submissions.", "error");
+        return;
+    }
+
+    const activities = getActivities();
+    const activity = activities.find(item => item.id === id);
+    if (!activity) return;
+
+    if (activity.status !== "Submitted" && activity.status !== "Reviewed") {
+        toast("This activity has not been submitted yet.", "error");
+        return;
+    }
+
+    const comment = prompt(`Feedback for ${activity.student}:`, activity.instructorComment || "");
+    if (comment === null) return;
+
+    activity.instructorComment = comment.trim();
+    activity.status = "Reviewed";
+    activity.reviewedAt = todayISO();
+    activity.reviewedBy = currentUser.name;
+    saveData(STORAGE.activities, activities);
+
+    if (comment.trim()) {
+        const feedback = getFeedback();
+        feedback.push({
+            id: Date.now(),
+            from: currentUser.name,
+            to: activity.student,
+            subject: `Submission review: ${activity.title}`,
+            rating: 0,
+            comment: comment.trim(),
+            date: todayISO(),
+            role: "instructor",
+            activityId: activity.id
+        });
+        saveData(STORAGE.feedback, feedback);
+    }
+
+    addNotification(
+        "Submission reviewed",
+        `Your submission "${activity.title}" has been reviewed. Open Activities to read your instructor's comments.`,
+        { name: activity.student }
+    );
+
+    renderAll();
+    toast("Review saved and student notified.", "success");
+}
+
+/* =========================================
+   I. INSTRUCTOR SUBMISSIONS
+========================================= */
+
+function renderSubmissions() {
+
+    const container = document.getElementById("submissionList");
+
+    if (!container) return;
+
+    const query = (
+        document.getElementById("submissionSearch")?.value || ""
+    ).toLowerCase();
+
+    const filter =
+        document.getElementById("submissionFilter")?.value || "all";
+
+    const activities = getActivities().filter(item => {
+
+        const matchesQuery =
+            item.student.toLowerCase().includes(query) ||
+            item.title.toLowerCase().includes(query);
+
+        const matchesFilter =
+            filter === "all" || item.status === filter;
+
+        return matchesQuery && matchesFilter;
+    });
+
+    container.innerHTML = activities.length
+        ? `<div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STUDENT</th>
+                        <th>ACTIVITY</th>
+                        <th>ROTATION</th>
+                        <th>SUBMITTED FILE</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${activities.map(item => `
+                        <tr>
+                            <td>${escapeHTML(item.student)}</td>
+                            <td>${escapeHTML(item.title)}</td>
+                            <td>${escapeHTML(item.rotation)}</td>
+                            <td>
+                                ${item.fileName
+                                    ? `<div>${escapeHTML(item.fileName)}</div>
+                                       <button class="link-button" onclick="openSubmissionFile(${item.id})">Open</button>
+                                       <button class="link-button" onclick="openSubmissionFile(${item.id}, true)">Download</button>`
+                                    : "No file attached"}
+                            </td>
+                            <td>
+                                <span class="status ${item.status === "Reviewed" ? "" : "pending"}">
+                                    ${escapeHTML(item.status)}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="link-button"
+                                        onclick="reviewActivity(${item.id})">
+                                    Review
+                                </button>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        </div>`
+        : `<div class="empty-state">No submissions found.</div>`;
+}
+
+
+/* =========================================
+   J. EVALUATIONS
+========================================= */
+
+const criteria = [
+    "Clinical skills",
+    "Communication",
+    "Critical thinking",
+    "Professionalism"
+];
+
+function renderEvaluationCriteria() {
+
+    document.getElementById("evaluationCriteria").innerHTML =
+        criteria.map((criterion, index) => `
+
+            <div class="rating-row">
+                <label>${escapeHTML(criterion)}</label>
+
+                <select id="criterion${index}">
+                    <option value="1">1 — Needs improvement</option>
+                    <option value="2">2 — Developing</option>
+                    <option value="3" selected>3 — Satisfactory</option>
+                    <option value="4">4 — Very good</option>
+                    <option value="5">5 — Excellent</option>
+                </select>
+            </div>
+
+        `).join("");
+}
+
+renderEvaluationCriteria();
+
+document.getElementById("evaluationForm").addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    if (currentUser.role !== "instructor") {
+        toast("Only clinical instructors can submit evaluations.", "error");
+        return;
+    }
+
+    const scores = {};
+
+    criteria.forEach((criterion, index) => {
+        scores[criterion] = Number(
+            document.getElementById("criterion" + index).value
+        );
+    });
+
+    const evaluations = getEvaluations();
+
+    evaluations.push({
+        id: Date.now(),
+        student: document.getElementById("evaluationStudent").value,
+        rotation: document.getElementById("evaluationRotation").value,
+        scores,
+        comment: document.getElementById("evaluationComment").value.trim(),
+        date: todayISO(),
+        instructor: currentUser.name,
+        released: true,
+        releasedAt: new Date().toISOString()
+    });
+
+    saveData(STORAGE.evaluations, evaluations);
+
+    const evaluatedStudent = document.getElementById("evaluationStudent").value;
+    addNotification(
+        "Clinical evaluation released",
+        `Your ${document.getElementById("evaluationRotation").value} evaluation is available in Evaluation & Feedback.`,
+        { name: evaluatedStudent }
+    );
+
+    document.getElementById("evaluationComment").value = "";
+
+    renderAll();
+
+    toast("Evaluation saved successfully.", "success");
+});
+
+function renderEvaluations() {
+
+    const history = document.getElementById("evaluationHistory");
+    const evaluationCard = document.getElementById("clinicalEvaluationCard");
+
+    if (!history) return;
+
+    // Only clinical instructors can create formal rubric-based evaluations.
+    if (evaluationCard) {
+        evaluationCard.style.display =
+            currentUser.role === "instructor" ? "block" : "none";
+    }
+
+    const evaluations = getEvaluations().filter(item =>
+        currentUser.role === "instructor" ||
+        (item.student === currentUser.name && item.released !== false)
+    );
+
+    history.innerHTML = evaluations.length
+        ? evaluations.slice().reverse().map(item => {
+
+            const average = Object.values(item.scores)
+                .reduce((sum, value) => sum + value, 0) /
+                Object.values(item.scores).length;
+
+            return `
+                <div class="list-row">
+
+                    <div class="list-icon green">✓</div>
+
+                    <div class="list-main">
+                        <strong>${escapeHTML(item.student)}</strong>
+                        <span>${escapeHTML(item.rotation)}</span>
+                        <span>${escapeHTML(item.comment)}</span>
+                    </div>
+
+                    <div class="list-end">
+                        <strong>${average.toFixed(1)}/5</strong>
+                        <small>${escapeHTML(prettyDate(item.date))}</small>
+                    </div>
+
+                </div>
+            `;
+        }).join("")
+        : `<div class="empty-state">No evaluations have been recorded.</div>`;
+}
+
+
+/* =========================================
+   K. ATTENDANCE
+========================================= */
+
+function renderAttendanceStats() {
+
+    const records = getAttendance().filter(item =>
+        currentUser.role === "instructor" ||
+        item.student === currentUser.name
+    );
+
+    const present = records.filter(item => item.status === "Present").length;
+    const late = records.filter(item => item.status === "Late").length;
+    const absent = records.filter(item => item.status === "Absent").length;
+
+    document.getElementById("attendancePresent").textContent = present;
+    document.getElementById("attendanceLate").textContent = late;
+    document.getElementById("attendanceAbsent").textContent = absent;
+
+    document.getElementById("attendanceRate").textContent =
+        (present + late + absent)
+            ? Math.round((present + late) / (present + late + absent) * 100) + "%"
+            : "0%";
+}
+
+function renderAttendance() {
+
+    const container = document.getElementById("attendanceTable");
+
+    if (!container) return;
+
+    const rotation =
+        document.getElementById("attendanceRotation")?.value || "all";
+
+    const date =
+        document.getElementById("attendanceDate")?.value || "";
+
+    let records = getAttendance();
+
+    if (currentUser.role === "student") {
+        records = records.filter(item =>
+            item.student === currentUser.name
+        );
+    }
+
+    records = records.filter(item =>
+        (rotation === "all" || item.rotation === rotation) &&
+        (!date || item.date === date)
+    );
+
+    container.innerHTML = records.length
+        ? `<div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STUDENT</th>
+                        <th>ROTATION</th>
+                        <th>DATE</th>
+                        <th>TIME</th>
+                        <th>STATUS</th>
+                        ${currentUser.role === "instructor" ? "<th>ACTION</th>" : ""}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${records.map(item => `
+                        <tr>
+                            <td>${escapeHTML(item.student)}</td>
+                            <td>${escapeHTML(item.rotation)}</td>
+                            <td>${escapeHTML(prettyDate(item.date))}</td>
+                            <td>${escapeHTML(item.time)}</td>
+                            <td>
+                                <span class="status ${item.status.toLowerCase()}">
+                                    ${escapeHTML(item.status)}
+                                </span>
+                            </td>
+
+                            ${currentUser.role === "instructor" ? `
+                                <td>
+                                    <button class="link-button"
+                                            onclick="changeAttendance('${escapeHTML(String(item.id))}')">
+                                        Update
+                                    </button>
+                                </td>
+                            ` : ""}
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        </div>`
+        : `<div class="empty-state">No attendance records found.</div>`;
+
+    renderAttendanceStats();
+}
+
+function changeAttendance(id) {
+
+    const records = getAttendance();
+
+    const record = records.find(item => String(item.id) === String(id));
+
+    if (!record) return;
+
+    const status = prompt(
+        "Enter attendance status: Present, Late, or Absent",
+        record.status
+    );
+
+    if (!["Present", "Late", "Absent"].includes(status)) {
+        toast("Choose a valid attendance status.", "error");
+        return;
+    }
+
+    record.status = status;
+
+    if (status === "Present") {
+        record.time = "06:45 AM";
+    } else if (status === "Late") {
+        record.time = "07:15 AM";
+    } else {
+        record.time = "—";
+    }
+
+    saveData(STORAGE.attendance, records);
+
+    renderAttendance();
+
+    toast("Attendance updated.", "success");
+}
+
+
+/* =========================================
+   L. FEEDBACK
+========================================= */
+
+document.querySelectorAll("#feedbackStars .star").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        feedbackRating = Number(button.dataset.rating);
+
+        document.querySelectorAll("#feedbackStars .star").forEach(star => {
+            star.classList.toggle(
+                "selected",
+                Number(star.dataset.rating) <= feedbackRating
+            );
+        });
+
+    });
+
+});
+
+document.getElementById("feedbackForm").addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    const subject = document.getElementById("feedbackSubject").value.trim();
+    const comment = document.getElementById("feedbackComment").value.trim();
+
+    const target = currentUser.role === "instructor"
+        ? document.getElementById("feedbackStudent").value
+        : (getUsers().find(user => user.role === "instructor")?.name || "Clinical Instructor");
+
+    const feedback = getFeedback();
+
+    feedback.push({
+        id: Date.now(),
+        from: currentUser.name,
+        to: target,
+        subject,
+        rating: feedbackRating,
+        comment,
+        date: todayISO(),
+        role: currentUser.role
+    });
+
+    saveData(STORAGE.feedback, feedback);
+
+    addNotification(
+        "New feedback received",
+        currentUser.role === "instructor"
+            ? `${currentUser.name} sent you feedback: ${subject}.`
+            : `${currentUser.name} submitted feedback: ${subject}.`,
+        currentUser.role === "instructor"
+            ? { name: target }
+            : { role: "instructor" }
+    );
+
+    document.getElementById("feedbackSubject").value = "";
+    document.getElementById("feedbackComment").value = "";
+    feedbackRating = 5;
+    document.querySelectorAll("#feedbackStars .star").forEach(star => {
+        star.classList.toggle("selected", Number(star.dataset.rating) <= feedbackRating);
+    });
+
+    renderAll();
+
+    toast("Feedback submitted successfully.", "success");
+});
+
+function renderFeedback() {
+
+    if (!currentUser) return;
+
+    const isInstructor = currentUser.role === "instructor";
+    const heading = document.getElementById("feedbackFormHeading");
+    const studentGroup = document.getElementById("feedbackStudentGroup");
+    const history = document.getElementById("feedbackHistory");
+
+    if (!heading || !studentGroup || !history) return;
+
+    heading.textContent = isInstructor
+        ? "Give student feedback"
+        : "Give instructor feedback";
+
+    studentGroup.style.display = isInstructor ? "block" : "none";
+
+    let feedback = getFeedback();
+
+    feedback = feedback.filter(item =>
+        item.to === currentUser.name ||
+        item.from === currentUser.name ||
+        (isInstructor && item.role === "student")
+    );
+
+    history.innerHTML = feedback.length
+        ? feedback.slice().reverse().map(item => `
+            <div class="notification-item">
+                <div class="avatar">${escapeHTML(initials(item.from))}</div>
+                <div style="min-width:0">
+                    <h4>${escapeHTML(item.subject)}</h4>
+                    <p>${escapeHTML(item.comment)}</p>
+                    <small>
+                        ${escapeHTML(item.from)}
+                        · ${escapeHTML(prettyDate(item.date))}
+                        · ${Number(item.rating) || 0}/5
+                    </small>
+                </div>
+            </div>
+        `).join("")
+        : `<div class="empty-state">No feedback records yet.</div>`;
+}
+
+/* =========================================
+   M. ANNOUNCEMENTS
+========================================= */
+
+function openAnnouncementForm() {
+
+    if (currentUser.role !== "instructor") {
+        toast("Only instructors can publish announcements.", "error");
+        return;
+    }
+
+    const card = document.getElementById("announcementFormCard");
+
+    card.style.display =
+        card.style.display === "none" ? "block" : "none";
+}
+
+document.getElementById("announcementForm").addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    if (currentUser.role !== "instructor") return;
+
+    const announcements = getAnnouncements();
+
+    announcements.push({
+        id: Date.now(),
+        title: document.getElementById("announcementTitle").value.trim(),
+        category: document.getElementById("announcementCategory").value,
+        content: document.getElementById("announcementContent").value.trim(),
+        date: todayISO(),
+        author: currentUser.name
+    });
+
+    saveData(STORAGE.announcements, announcements);
+
+    addNotification(
+        "New announcement",
+        "A new clinical learning announcement has been published.",
+        { role: "student" }
+    );
+
+    document.getElementById("announcementForm").reset();
+
+    document.getElementById("announcementFormCard").style.display = "none";
+
+    renderAll();
+
+    toast("Announcement published successfully.", "success");
+});
+
+function renderAnnouncements() {
+
+    const container = document.getElementById("announcementList");
+
+    if (!container) return;
+
+    const filter =
+        document.getElementById("announcementFilter")?.value || "all";
+
+    const announcements = getAnnouncements()
+        .filter(item => filter === "all" || item.category === filter)
+        .slice()
+        .reverse();
+
+    container.innerHTML = announcements.length
+        ? announcements.map(item => `
+            <div class="notification-item">
+
+                <div class="list-icon">${item.category === "Rotation" ? "▣" : "♢"}</div>
+
+                <div style="flex:1">
+
+                    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                        <h4>${escapeHTML(item.title)}</h4>
+
+                        <span class="status progress">
+                            ${escapeHTML(item.category)}
+                        </span>
+                    </div>
+
+                    <p>${escapeHTML(item.content)}</p>
+
+                    <small>
+                        ${escapeHTML(item.author)} ·
+                        ${escapeHTML(prettyDate(item.date))}
+                    </small>
+
+                </div>
+
+            </div>
+        `).join("")
+        : `<div class="empty-state">No announcements available.</div>`;
+}
+
+
+/* =========================================
+   N. NOTIFICATIONS
+========================================= */
+
+function addNotification(title, content, recipient = {}) {
+    const recipientUser = getUsers().find(user =>
+        (recipient.email && user.email === recipient.email) ||
+        (recipient.name && user.name === recipient.name) ||
+        (recipient.role && user.role === recipient.role)
+    );
+    if (recipientUser && recipientUser.notificationsEnabled === false) return;
+    const notifications = getNotifications();
+    notifications.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        title,
+        content,
+        recipientEmail: recipient.email || "",
+        recipientName: recipient.name || "",
+        recipientRole: recipient.role || "",
+        date: new Date().toISOString(),
+        read: false
+    });
+    saveData(STORAGE.notifications, notifications);
+}
+
+function markAllNotificationsRead() {
+
+    const notifications = getNotifications().map(item => {
+        const belongsToUser = (!item.recipientEmail && !item.recipientName && !item.recipientRole) ||
+            item.recipientEmail === currentUser.email ||
+            item.recipientName === currentUser.name ||
+            item.recipientRole === currentUser.role;
+        return belongsToUser ? { ...item, read: true } : item;
+    });
+
+    saveData(STORAGE.notifications, notifications);
+
+    renderNotifications();
+    renderNavigation();
+
+    toast("All notifications marked as read.", "success");
+}
+
+function renderNotifications() {
+
+    const container = document.getElementById("notificationList");
+
+    if (!container) return;
+
+    const filter =
+        document.getElementById("notificationFilter")?.value || "all";
+
+    const notifications = getNotifications()
+        .filter(item =>
+            (!item.recipientEmail && !item.recipientName && !item.recipientRole) ||
+            item.recipientEmail === currentUser.email ||
+            item.recipientName === currentUser.name ||
+            item.recipientRole === currentUser.role
+        )
+        .filter(item =>
+            filter === "all" ||
+            (filter === "unread" && !item.read) ||
+            (filter === "read" && item.read)
+        )
+        .slice()
+        .reverse();
+
+    container.innerHTML = notifications.length
+        ? notifications.map(item => `
+            <div class="notification-item">
+
+                <div class="list-icon ${item.read ? "" : "aqua"}">
+                    ${item.read ? "✓" : "●"}
+                </div>
+
+                <div style="flex:1">
+
+                    <h4>${escapeHTML(item.title)}</h4>
+
+                    <p>${escapeHTML(item.content)}</p>
+
+                    <small>${escapeHTML(new Date(item.date).toLocaleString())}</small>
+
+                </div>
+
+                ${!item.read ? `
+                    <button class="link-button"
+                            onclick="markNotificationRead(${item.id})">
+                        Mark read
+                    </button>
+                ` : ""}
+
+            </div>
+        `).join("")
+        : `<div class="empty-state">No notifications found.</div>`;
+}
+
+function markNotificationRead(id) {
+
+    const notifications = getNotifications();
+
+    const notification = notifications.find(item => item.id === id);
+
+    if (!notification) return;
+
+    notification.read = true;
+
+    saveData(STORAGE.notifications, notifications);
+
+    renderNotifications();
+    renderNavigation();
+}
+
+
+/* =========================================
+   O. PORTFOLIO
+========================================= */
+
+function renderPortfolio() {
+
+    const activities = getActivities().filter(item =>
+        item.student === currentUser.name
+    );
+
+    const evaluations = getEvaluations().filter(item =>
+        item.student === currentUser.name
+    );
+
+    const feedback = getFeedback().filter(item =>
+        item.to === currentUser.name
+    );
+
+    document.getElementById("portfolioActivities").textContent =
+        activities.length;
+
+    document.getElementById("portfolioEvaluations").textContent =
+        evaluations.length;
+
+    document.getElementById("portfolioFeedback").textContent =
+        feedback.length;
+
+    const container = document.getElementById("portfolioList");
+
+    const entries = [
+        ...activities.map(item => ({
+            title: item.title,
+            type: item.type,
+            date: item.submittedAt || item.due,
+            status: item.status
+        })),
+        ...evaluations.filter(item => item.released !== false).map(item => ({
+            title: "Clinical Performance Evaluation",
+            type: item.rotation,
+            date: item.date,
+            status: "Evaluated"
+        })),
+        ...feedback.map(item => ({
+            title: item.subject,
+            type: "Instructor feedback",
+            date: item.date,
+            status: "Received"
+        }))
+    ].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+    container.innerHTML = entries.length
+        ? entries.map(item => `
+            <div class="list-row">
+
+                <div class="list-icon green">▤</div>
+
+                <div class="list-main">
+                    <strong>${escapeHTML(item.title)}</strong>
+                    <span>${escapeHTML(item.type)}</span>
+                </div>
+
+                <div class="list-end">
+                    <span class="status">
+                        ${escapeHTML(item.status)}
+                    </span>
+
+                    <small>${escapeHTML(prettyDate(item.date))}</small>
+                </div>
+
+            </div>
+        `).join("")
+        : `<div class="empty-state">Your clinical portfolio is currently empty.</div>`;
+}
+
+
+/* =========================================
+   P. PERFORMANCE ANALYZER
+========================================= */
+
+function renderPerformance() {
+    const picker = document.getElementById("performanceStudentPicker");
+    const select = document.getElementById("performanceStudentSelect");
+    const description = document.getElementById("performanceDescription");
+    const evaluations = getEvaluations().filter(item =>
+        currentUser.role === "instructor" || item.released !== false
+    );
+
+    const studentNames = [...new Set([
+        ...getUsers().filter(user => user.role === "student").map(user => user.name),
+        ...evaluations.map(item => item.student),
+        ...getActivities().map(item => item.student),
+        ...getAttendance().map(item => item.student)
+    ].filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+    let selectedStudent = currentUser.role === "student"
+        ? currentUser.name
+        : (select?.value || studentNames[0] || "");
+
+    if (currentUser.role === "instructor") {
+        picker.style.display = "block";
+        select.innerHTML = studentNames.map(name =>
+            `<option value="${escapeHTML(name)}" ${name === selectedStudent ? "selected" : ""}>${escapeHTML(name)}</option>`
+        ).join("");
+        if (!studentNames.includes(selectedStudent)) selectedStudent = studentNames[0] || "";
+        select.value = selectedStudent;
+        description.textContent = "Select a student to review their individual clinical performance and evaluation history.";
+    } else {
+        picker.style.display = "none";
+        description.textContent = "Your individual clinical competencies, evaluation results, and progress over time.";
+    }
+
+    document.getElementById("performanceStudentHeading").textContent =
+        selectedStudent ? `${selectedStudent}'s competency overview` : "Student competency overview";
+
+    const studentEvaluations = evaluations
+        .filter(item => item.student === selectedStudent)
+        .slice()
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+
+    const competencyAverages = criteria.map(name => {
+        const values = studentEvaluations.map(item => Number(item.scores?.[name]))
+            .filter(value => Number.isFinite(value) && value > 0);
+        return { name, value: values.length ? values.reduce((a, b) => a + b, 0) / values.length : null };
+    });
+
+    const available = competencyAverages.filter(item => item.value !== null);
+    const overall = available.length
+        ? available.reduce((sum, item) => sum + item.value, 0) / available.length
+        : null;
+    const percent = overall === null ? null : Math.round(overall / 5 * 100);
+
+    document.getElementById("performanceEvaluationCount").textContent =
+        `${studentEvaluations.length} evaluation${studentEvaluations.length === 1 ? "" : "s"}`;
+    document.getElementById("performanceOverall").textContent = percent === null ? "—" : `${percent}%`;
+    document.getElementById("performanceDonut").style.background = percent === null
+        ? "conic-gradient(#e8e7f8 0% 100%)"
+        : `conic-gradient(var(--aqua) 0 ${percent}%, #e8e7f8 ${percent}% 100%)`;
+
+    const trendRecords = studentEvaluations.slice(-6);
+    const chart = document.getElementById("performanceChart");
+    chart.innerHTML = trendRecords.length
+        ? trendRecords.map(item => {
+            const vals = Object.values(item.scores || {}).map(Number).filter(v => Number.isFinite(v) && v > 0);
+            const score = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length / 5 * 100) : 0;
+            const dateLabel = item.date ? prettyDate(item.date).replace(/, \d{4}/, "") : "—";
+            return `<div class="bar-wrap"><div class="bar" title="${score}%" style="height:${Math.max(score, 4)}%"></div><div class="bar-label">${escapeHTML(dateLabel)}</div></div>`;
+        }).join("")
+        : `<div class="empty-state" style="width:100%;padding:12px">No trend data yet</div>`;
+
+    document.getElementById("competencyBars").innerHTML = studentEvaluations.length
+        ? competencyAverages.map(item => {
+            const value = item.value === null ? 0 : Math.round(item.value / 5 * 100);
+            return `<div style="margin:15px 0">
+                <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:7px">
+                    <span style="font-size:10px;font-weight:600">${escapeHTML(item.name)}</span>
+                    <strong style="font-size:10px">${item.value === null ? "Not rated" : `${item.value.toFixed(1)}/5 · ${value}%`}</strong>
+                </div>
+                <div style="height:8px;background:#ececf7;border-radius:20px;overflow:hidden">
+                    <div style="height:100%;width:${value}%;background:linear-gradient(90deg,var(--purple),var(--aqua));border-radius:20px"></div>
+                </div>
+            </div>`;
+        }).join("")
+        : `<div class="empty-state">No evaluation data is available for ${escapeHTML(selectedStudent || "this student")}. Scores will appear after an instructor records an evaluation.</div>`;
+
+    const development = document.getElementById("performanceDevelopment");
+    if (!available.length) {
+        development.innerHTML = `<div class="empty-state">A development plan will appear after competency scores have been recorded.</div>`;
+    } else {
+        const ranked = available.slice().sort((a, b) => b.value - a.value);
+        const strongest = ranked[0], focus = ranked[ranked.length - 1];
+        development.innerHTML = `
+            <div class="list-row"><div class="list-icon green">✓</div><div class="list-main">
+                <strong>Strongest competency: ${escapeHTML(strongest.name)}</strong>
+                <span>Average rating: ${strongest.value.toFixed(1)} out of 5. Continue demonstrating this competency during clinical duties.</span>
+            </div></div>
+            <div class="list-row"><div class="list-icon orange">!</div><div class="list-main">
+                <strong>Priority for improvement: ${escapeHTML(focus.name)}</strong>
+                <span>Average rating: ${focus.value.toFixed(1)} out of 5. Focus on practice, instructor guidance, and consistent application.</span>
+            </div></div>`;
+    }
+
+    const comments = studentEvaluations.slice().reverse().filter(item => item.comment?.trim()).slice(0, 3);
+    document.getElementById("performanceComments").innerHTML = comments.length
+        ? comments.map(item => `<div class="list-row"><div class="list-icon aqua">✎</div><div class="list-main">
+            <strong>${escapeHTML(item.instructor || "Clinical Instructor")} · ${escapeHTML(prettyDate(item.date))}</strong>
+            <span>${escapeHTML(item.comment)}</span>
+        </div></div>`).join("")
+        : `<div class="empty-state">No instructor comments have been recorded yet.</div>`;
+
+    const history = document.getElementById("performanceHistory");
+    history.innerHTML = studentEvaluations.length
+        ? `<table><thead><tr><th>DATE</th><th>ROTATION</th><th>AVERAGE</th><th>RATING</th><th>INSTRUCTOR</th></tr></thead><tbody>
+            ${studentEvaluations.slice().reverse().map(item => {
+                const vals = Object.values(item.scores || {}).map(Number).filter(v => Number.isFinite(v) && v > 0);
+                const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+                const rating = avg >= 4.5 ? "Excellent" : avg >= 3.5 ? "Very good" : avg >= 2.5 ? "Satisfactory" : "Needs improvement";
+                return `<tr><td>${escapeHTML(prettyDate(item.date))}</td><td>${escapeHTML(item.rotation || "—")}</td>
+                    <td><strong>${avg ? `${avg.toFixed(2)}/5` : "—"}</strong></td>
+                    <td><span class="status ${avg >= 3.5 ? "" : "pending"}">${rating}</span></td>
+                    <td>${escapeHTML(item.instructor || "—")}</td></tr>`;
+            }).join("")}
+        </tbody></table>`
+        : `<div class="empty-state">No evaluation records found for this student yet.</div>`;
+}
+
+/* =========================================
+   Q. SETTINGS
+========================================= */
+
+document.getElementById("settingsForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    if (!currentUser || !db) return;
+
+    const rotation = document.getElementById("settingsRotation").value;
+    const notificationsEnabled = document.getElementById("notificationsEnabled").checked;
+
+    try {
+
+        await db.collection("users").doc(currentUser.uid).update({
+            rotation,
+            notificationsEnabled
+        });
+
+        currentUser.rotation = rotation;
+        currentUser.notificationsEnabled = notificationsEnabled;
+
+        updateUserInterface();
+
+        toast("Profile updated successfully.", "success");
+
+    } catch (error) {
+        reportCloudError("update your profile", error);
+    }
+});
+
+
+/* =========================================
+   R. CSV EXPORT
+========================================= */
+
+function downloadCSV(filename, rows) {
+
+    if (!rows.length) {
+        toast("There is no data to export.", "error");
+        return;
+    }
+
+    const csv = rows.map(row =>
+        row.map(value =>
+            '"' + String(value ?? "").replace(/"/g, '""') + '"'
+        ).join(",")
+    ).join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+    toast("CSV report downloaded.", "success");
+}
+
+function exportAttendance() {
+
+    const records = getAttendance();
+
+    downloadCSV("clinsync-attendance.csv", [
+        ["Student", "Rotation", "Date", "Time", "Status"],
+        ...records.map(item => [
+            item.student,
+            item.rotation,
+            item.date,
+            item.time,
+            item.status
+        ])
+    ]);
+}
+
+function exportActivities() {
+
+    const activities = getActivities();
+
+    downloadCSV("clinsync-activities.csv", [
+        ["Student", "Activity", "Type", "Rotation", "Due date", "Status", "File"],
+        ...activities.map(item => [
+            item.student,
+            item.title,
+            item.type,
+            item.rotation,
+            item.due,
+            item.status,
+            item.fileName
+        ])
+    ]);
+}
+
+function exportEvaluations() {
+
+    const evaluations = getEvaluations();
+
+    downloadCSV("clinsync-evaluations.csv", [
+        ["Student", "Rotation", ...criteria, "Comments", "Date"],
+        ...evaluations.map(item => [
+            item.student,
+            item.rotation,
+            ...criteria.map(criterion => item.scores[criterion] ?? ""),
+            item.comment,
+            item.date
+        ])
+    ]);
+}
+
+function exportFeedback() {
+
+    const feedback = getFeedback();
+
+    downloadCSV("clinsync-feedback.csv", [
+        ["From", "To", "Subject", "Rating", "Comment", "Date"],
+        ...feedback.map(item => [
+            item.from,
+            item.to,
+            item.subject,
+            item.rating,
+            item.comment,
+            item.date
+        ])
+    ]);
+}
+
+
+/* =========================================
+   S. RENDER ALL COMPONENTS
+========================================= */
+
+function renderAll() {
+
+    if (!currentUser) return;
+
+    renderDashboard();
+    renderActivities();
+    renderSubmissions();
+    renderEvaluations();
+    renderAttendance();
+    renderFeedback();
+    renderAnnouncements();
+    renderNotifications();
+    renderPortfolio();
+    renderPerformance();
+    renderNavigation();
+}
+
+
+/* =========================================
+   T. PASSWORD VISIBILITY + LIVE SYNC
+========================================= */
+
+// Show/hide password controls for login, signup, and confirmation fields.
+document.querySelectorAll("[data-toggle-password]").forEach(button => {
+    button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.togglePassword);
+        if (!input) return;
+        const reveal = input.type === "password";
+        input.type = reveal ? "text" : "password";
+        button.textContent = reveal ? "Hide" : "Show";
+        button.setAttribute("aria-pressed", String(reveal));
+        input.focus();
+    });
+});
+
+/* =========================================
+   U. INITIAL APPLICATION STATE
+========================================= */
+
+document.getElementById("attendanceDate").value = todayISO();
+
+document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+});
+
+</script>
+
+</body>
+</html>
