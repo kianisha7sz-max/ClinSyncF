@@ -1746,6 +1746,40 @@ button, input, select, textarea {
     }
 }
 
+
+/* Roster, duty, and record views */
+.sidebar { overflow: hidden; height: 100dvh; }
+.sidebar > .brand, .sidebar > .nav-label, .sidebar-bottom { flex-shrink: 0; }
+.nav-menu { flex: 1 1 auto; min-height: 0; overflow-y: auto; align-content: start; padding-right: 5px; overscroll-behavior: contain; scrollbar-width: thin; }
+.sidebar-bottom { padding-top: 12px; }
+.duty-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,310px),1fr)); gap: 16px; }
+.duty-item { border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-width: 0; }
+.duty-item h3 { font-size: 17px; margin: 12px 0 6px; overflow-wrap: anywhere; }
+.duty-meta { display: grid; gap: 9px; margin: 16px 0; line-height: 1.7; font-size: 11px; }
+.duty-meta span { display: block; color: var(--muted); font-size: 9px; letter-spacing: .5px; }
+.duty-card { min-width: 0; overflow-wrap: anywhere; }
+.duty-card h3 { font-size: 21px; margin: 16px 0 7px; }
+.duty-card .duty-meta span { color: #d1c9f3; }
+.duty-card .duty-meta { color: white; }
+.duty-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.student-picker { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #fbfcff; }
+.student-picker input[type=search] { width: 100%; padding: 9px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 7px; }
+.student-picker-list { max-height: 190px; overflow-y: auto; margin-top: 10px; }
+.student-choice { display: flex !important; gap: 9px; align-items: center; padding: 8px 4px; margin: 0 !important; font-weight: 500 !important; }
+.student-choice input[type=checkbox] { width: auto; padding: 0; accent-color: var(--purple); }
+.picker-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.portfolio-category { text-align: left; color: var(--text); }
+.portfolio-category[aria-pressed=true] { border-color: var(--purple); box-shadow: 0 0 0 2px #6045cf20; }
+.record-details { border: 1px solid var(--border); border-radius: 10px; margin: 12px 0; padding: 14px; }
+.record-details summary { cursor: pointer; font-weight: 700; line-height: 1.8; }
+.criterion-line { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.record-modal { border: 0; border-radius: 18px; margin: auto; padding: 24px; width: min(620px,calc(100vw - 28px)); max-height: 90dvh; overflow-y: auto; color: var(--text); }
+.record-modal::backdrop { background: #17184999; }
+.record-modal p { line-height: 1.8; margin: 10px 0; overflow-wrap: anywhere; }
+.record-modal progress { width: 100%; accent-color: var(--purple); }
+.attendance-status { min-width: 125px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; }
+@media(max-height:650px) { .sidebar { padding-top: 12px; padding-bottom: 12px; } .sidebar .brand { padding-bottom: 10px; } }
+
 </style>
 </head>
 
@@ -1770,7 +1804,7 @@ button, input, select, textarea {
     </div>
 
     <div class="intro-name">Clin<span>Sync</span></div>
-    <div class="intro-tagline">CLINICAL LEARNING. PERFECTLY CONNECTED.</div>
+    <div class="intro-tagline">Syncing Feedback. Shaping Futures.</div>
     <div class="intro-progress"><div></div></div>
 </div>
 
@@ -2447,8 +2481,7 @@ button, input, select, textarea {
                     <form id="createActivityForm">
                         <div class="grid two-column">
                             <div class="form-group">
-                                <label for="newActivityStudent">Assign to student</label>
-                                <select id="newActivityStudent" required><option value="">No registered students yet</option></select>
+                                <label>Assign to students in My Students</label><div id="activityStudentPicker"></div>
                             </div>
                             <div class="form-group">
                                 <label for="newActivityTitle">Activity title</label>
@@ -2471,7 +2504,6 @@ button, input, select, textarea {
                                     <option>Internal Medicine</option>
                                     <option>Surgery</option>
                                     <option>Pediatrics</option>
-                                    <option>Obstetrics and Gynecology</option>
                                     <option>Emergency Department</option>
                                 </select>
                             </div>
@@ -2498,11 +2530,11 @@ button, input, select, textarea {
                         <option value="Not started">Not started</option>
                         <option value="In progress">In progress</option>
                         <option value="Submitted">Submitted</option>
-                        <option value="Reviewed">Reviewed</option>
+                        <option value="Reviewed">Reviewed</option><option value="Missed">Missed</option>
                     </select>
                 </div>
 
-                <div class="card" id="activityList"></div>
+                <p class="muted small" style="margin-bottom:14px">Accepted files: PDF, Word documents, JPG, PNG, and TXT. Maximum file size: 100 MB.</p><div class="card" id="activityList"></div>
 
             </section>
 
@@ -2564,7 +2596,7 @@ button, input, select, textarea {
                     <form id="evaluationForm">
                         <div class="form-group">
                             <label for="evaluationStudent">Student</label>
-                            <select id="evaluationStudent" required><option value="">No registered students yet</option></select>
+                            <select id="evaluationStudent" onchange="populateEvaluationDuties()" required><option value="">No registered students yet</option></select>
                         </div>
 
                         <div class="form-group">
@@ -2573,11 +2605,12 @@ button, input, select, textarea {
                                 <option>Internal Medicine</option>
                                 <option>Surgery</option>
                                 <option>Pediatrics</option>
-                                <option>Obstetrics and Gynecology</option>
                                 <option>Emergency Department</option>
                             </select>
                         </div>
 
+                        <div class="form-group"><label for="evaluationDuty">Duty being evaluated</label><select id="evaluationDuty" onchange="selectEvaluationDuty()"><option value="">Historical duty (enter date below)</option></select></div>
+                        <div class="form-group"><label for="evaluationDutyDate">Duty date</label><input id="evaluationDutyDate" type="date" required></div>
                         <div id="evaluationCriteria"></div>
 
                         <div class="form-group" style="margin-top:18px">
@@ -2674,17 +2707,22 @@ button, input, select, textarea {
                  ATTENDANCE
             ========================================= -->
 
+            <section class="page" id="page-students">
+                <div class="page-heading"><div><div class="eyebrow">INSTRUCTOR WORKSPACE</div><h1>My Students</h1><p>Add registered students you handle. Removing a student from this roster preserves their assignment and assessment history.</p></div></div>
+                <div class="grid two-column"><div class="card"><h3>Students I handle</h3><div class="filter-bar"><input id="rosterSearch" placeholder="Search my students" oninput="renderRoster()"></div><div id="rosterList"></div></div>
+                <div class="card"><h3>Add registered students</h3><div class="filter-bar"><input id="registeredSearch" placeholder="Search name or email" oninput="renderRoster()"></div><div id="registeredList"></div></div></div>
+            </section>
+
             <section class="page" id="page-duties">
-                <div class="page-heading"><div><div class="eyebrow">CLINICAL DUTY MANAGEMENT</div><h1>Hospital Duties</h1><p>View assigned shifts and their hospital, ward, rotation, and instructions. Times use your device's local time zone.</p></div></div>
+                <div class="page-heading"><div><div class="eyebrow">CLINICAL DUTY MANAGEMENT</div><h1>Hospital Duties</h1><p>Manage clinical shifts and review hospital, rotation, and instructions. Times are shown in your device’s local time zone.</p></div></div>
                 <div class="card" id="dutyAssignmentCard" style="margin-bottom:18px;display:none">
                     <h3 style="margin-bottom:18px">Assign hospital duty</h3>
                     <form id="dutyForm">
                         <input id="dutyId" type="hidden">
                         <div class="form-grid">
-                            <div class="form-group"><label for="dutyStudent">Student</label><select id="dutyStudent" required></select></div>
-                            <div class="form-group"><label for="dutyRotation">Rotation</label><input id="dutyRotation" required maxlength="120"></div>
+                            <div class="form-group full" id="dutyStudentField"><label>Assign to students in My Students</label><div id="dutyStudentPicker"></div></div>
+                            <div class="form-group"><label for="dutyRotation">Rotation</label><select id="dutyRotation" required><option value="">Select a rotation</option><option>Internal Medicine</option><option>Surgery</option><option>Pediatrics</option><option>Emergency Department</option></select></div>
                             <div class="form-group"><label for="dutyHospital">Hospital</label><input id="dutyHospital" required maxlength="160"></div>
-                            <div class="form-group"><label for="dutyWard">Ward / unit</label><input id="dutyWard" required maxlength="120"></div>
                             <div class="form-group"><label for="dutyStart">Shift starts</label><input id="dutyStart" type="datetime-local" required></div>
                             <div class="form-group"><label for="dutyEnd">Shift ends</label><input id="dutyEnd" type="datetime-local" required></div>
                             <div class="form-group full"><label for="dutyInstructions">Instructions</label><textarea id="dutyInstructions" maxlength="3000"></textarea></div>
@@ -2694,7 +2732,9 @@ button, input, select, textarea {
                         <p id="dutyFormStatus" role="status" style="margin-top:12px"></p>
                     </form>
                 </div>
-                <div class="card"><div class="card-heading"><h3>Duty assignments</h3></div><div id="dutyList"></div></div>
+                <div class="card"><div class="card-heading"><h3>Duty assignments</h3></div>
+                    <div class="filter-bar"><input id="dutySearch" placeholder="Search hospital, student, or rotation" oninput="renderDuties()"><select id="dutyFilter" onchange="renderDuties()"><option value="upcoming">Upcoming / in progress</option><option value="history">History</option><option value="all">All duties</option></select></div>
+                    <div id="dutyList" class="duty-grid"></div></div>
             </section>
 
             <section class="page" id="page-attendance">
@@ -2759,7 +2799,7 @@ button, input, select, textarea {
                                onchange="renderAttendance()">
                     </div>
 
-                    <div id="attendanceTable"></div>
+                    <div class="filter-bar"><select id="attendanceView" onchange="renderAttendance()"><option value="all">All duties and records</option><option value="unmarked">Not recorded</option><option value="recorded">Recorded history</option></select><button type="button" class="small-button secondary-button" onclick="document.getElementById('attendanceDate').value='';renderAttendance()">Show all dates</button></div><p class="muted small" style="margin-bottom:16px">Attendance is recorded per assigned duty. “Not recorded” is not counted as absent.</p><div id="attendanceTable"></div>
 
                 </div>
 
@@ -2787,25 +2827,17 @@ button, input, select, textarea {
 
                 <div class="grid stats-grid">
 
-                    <div class="stat-card">
-                        <div class="stat-number" id="portfolioActivities">0</div>
-                        <div class="stat-label">Activities</div>
-                    </div>
+                    <button type="button" class="stat-card portfolio-category" data-category="activities" onclick="setPortfolioCategory('activities')"><div class="stat-number" id="portfolioActivities">0</div>
+                        <div class="stat-label">Activities</div></button>
 
-                    <div class="stat-card">
-                        <div class="stat-number" id="portfolioEvaluations">0</div>
-                        <div class="stat-label">Evaluations</div>
-                    </div>
+                    <button type="button" class="stat-card portfolio-category" data-category="evaluations" onclick="setPortfolioCategory('evaluations')"><div class="stat-number" id="portfolioEvaluations">0</div>
+                        <div class="stat-label">Evaluations</div></button>
 
-                    <div class="stat-card">
-                        <div class="stat-number" id="portfolioAverage">—</div>
-                        <div class="stat-label">Average clinical rating</div>
-                    </div>
+                    <button type="button" class="stat-card portfolio-category" data-category="ratings" onclick="setPortfolioCategory('ratings')"><div class="stat-number" id="portfolioAverage">—</div>
+                        <div class="stat-label">Average clinical rating</div></button>
 
-                    <div class="stat-card">
-                        <div class="stat-number" id="portfolioFeedback">0</div>
-                        <div class="stat-label">Feedback received</div>
-                    </div>
+                    <button type="button" class="stat-card portfolio-category" data-category="feedback" onclick="setPortfolioCategory('feedback')"><div class="stat-number" id="portfolioFeedback">0</div>
+                        <div class="stat-label">Feedback received</div></button>
 
                 </div>
 
@@ -2813,11 +2845,11 @@ button, input, select, textarea {
                     <div class="card-heading">
                         <div>
                             <div class="eyebrow">LEARNING RECORD</div>
-                            <h3>My clinical achievements</h3>
+                            <h3 id="portfolioCategoryTitle">Activity records</h3>
                         </div>
                     </div>
 
-                    <div id="portfolioList"></div>
+                    <div class="filter-bar"><select id="portfolioStatus" onchange="renderPortfolio()"><option value="all">All activity statuses</option><option>Submitted</option><option>Reviewed</option><option>Missed</option><option>Not started</option><option>In progress</option></select></div><div id="portfolioList"></div>
                 </div>
 
             </section>
@@ -3139,7 +3171,6 @@ button, input, select, textarea {
                                     <option>Surgery</option>
                                     <option>Pediatrics</option>
                                     <option>Emergency Department</option>
-                                    <option>Obstetrics and Gynecology</option>
                                 </select>
                             </div>
 
@@ -3202,6 +3233,7 @@ button, input, select, textarea {
      13. JAVASCRIPT
 ========================================= -->
 
+<dialog id="recordDialog" class="record-modal" aria-labelledby="recordDialogTitle"><div class="card-heading"><h2 id="recordDialogTitle">Record details</h2><button type="button" class="small-button secondary-button" onclick="closeRecordDialog()" aria-label="Close record details">Close</button></div><div id="recordDialogContent"></div></dialog>
 <!-- Firebase SDK (compat build) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -3256,160 +3288,102 @@ function dutyTime(value) {
     const date = new Date(value);
     return Number.isFinite(date.getTime()) ? date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "—";
 }
-
 function upcomingDuties(duties, now = Date.now()) {
     return duties.filter(duty => duty.status === "assigned" && new Date(duty.endsAt).getTime() > now)
-        .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
+        .sort((a,b) => new Date(a.startsAt) - new Date(b.startsAt));
 }
-
+function dutyStatus(duty) {
+    return duty.status === "cancelled" ? "Cancelled" : new Date(duty.endsAt) <= new Date() ? "Completed" : new Date(duty.startsAt) <= new Date() ? "In progress" : "Upcoming";
+}
 function dutyDetails(duty) {
-    return `<h3>${escapeHTML(duty.ward)}</h3>
-        <p><strong>${escapeHTML(duty.hospital)}</strong> · ${escapeHTML(duty.rotation)}</p>
-        <p>${escapeHTML(dutyTime(duty.startsAt))} – ${escapeHTML(dutyTime(duty.endsAt))}</p>
-        <p>Student: ${escapeHTML(duty.student)}<br>Clinical instructor: ${escapeHTML(duty.instructor)}</p>
-        ${duty.instructions ? `<p style="white-space:pre-wrap">${escapeHTML(duty.instructions)}</p>` : ""}`;
+    return `<h3>${escapeHTML(duty.hospital)}</h3><p>${escapeHTML(duty.rotation)}</p>
+        <div class="duty-meta"><div><span>SHIFT START</span>${escapeHTML(dutyTime(duty.startsAt))}</div><div><span>SHIFT END</span>${escapeHTML(dutyTime(duty.endsAt))}</div><div><span>STUDENT</span>${escapeHTML(duty.student)}</div><div><span>CLINICAL INSTRUCTOR</span>${escapeHTML(duty.instructor)}</div></div>
+        ${duty.instructions ? `<p style="white-space:pre-wrap;line-height:1.8">${escapeHTML(duty.instructions)}</p>` : '<p class="small">No additional instructions.</p>'}`;
 }
-
 function renderNextDuty() {
     const duty = upcomingDuties(getDuties())[0];
     const card = document.getElementById(currentUser.role + "DutyCard");
     card.innerHTML = '<div class="eyebrow" style="color:#d1c9f3">NEXT HOSPITAL DUTY</div>' +
-        (duty ? `<p>${new Date(duty.startsAt).getTime() <= Date.now() ? "In progress" : "Upcoming"}</p>${dutyDetails(duty)}`
-            : `<p>${loaded.duties ? "No upcoming duty assigned." : "Duty assignments have not loaded yet."}</p>`) +
-        '<button class="small-button secondary-button" onclick="navigate(\'duties\')">View hospital duties</button>';
+        (duty ? `<h3>${escapeHTML(duty.hospital)}</h3><p>${escapeHTML(duty.rotation)} · ${dutyStatus(duty)}</p><div class="duty-meta"><div><span>STARTS</span>${escapeHTML(dutyTime(duty.startsAt))}</div><div><span>ENDS</span>${escapeHTML(dutyTime(duty.endsAt))}</div><div><span>${currentUser.role === "student" ? "INSTRUCTOR" : "STUDENT"}</span>${escapeHTML(currentUser.role === "student" ? duty.instructor : duty.student)}</div></div>`
+            : `<p>${loaded.duties ? "No upcoming duty assigned." : "Duty assignments have not loaded. Check your connection and permissions."}</p>`) +
+        `<div class="duty-actions">${duty ? recordButton("duty-details",duty.id,"View details") : ""}<button class="small-button secondary-button" onclick="navigate('duties')">All hospital duties</button></div>`;
 }
-
 function renderDuties() {
     if (!currentUser) return;
     const instructor = currentUser.role === "instructor";
     document.getElementById("dutyAssignmentCard").style.display = instructor ? "block" : "none";
-    if (instructor) {
-        const select = document.getElementById("dutyStudent");
-        const previous = select.value;
-        const students = getUsers().filter(user => user.role === "student").sort((a, b) => a.name.localeCompare(b.name));
-        select.innerHTML = '<option value="">Select a registered student</option>' + students.map(student =>
-            `<option value="${escapeHTML(student.id)}">${escapeHTML(student.name)}</option>`).join("");
-        if (students.some(student => student.id === previous)) select.value = previous;
-    }
-    const duties = getDuties().slice().sort((a, b) => new Date(b.startsAt) - new Date(a.startsAt));
-    const list = document.getElementById("dutyList");
-    list.replaceChildren();
-    if (!duties.length) {
-        list.innerHTML = `<div class="empty-state">${loaded.duties ? "No hospital duties assigned yet." : "Duty assignments have not loaded yet. Check your connection and database permissions if this persists."}</div>`;
-    }
-    duties.forEach(duty => {
-        const row = document.createElement("div");
-        row.className = "stat-card";
-        row.style.marginBottom = "12px";
-        const status = duty.status === "cancelled" ? "Cancelled" : new Date(duty.endsAt) <= new Date()
-            ? "Completed" : new Date(duty.startsAt) <= new Date() ? "In progress" : "Upcoming";
-        row.innerHTML = `<span class="status">${status}</span>${dutyDetails(duty)}`;
-        if (instructor && duty.status === "assigned" && new Date(duty.endsAt) > new Date()) {
-            const edit = document.createElement("button");
-            edit.className = "small-button secondary-button";
-            edit.textContent = "Edit assignment";
-            edit.addEventListener("click", () => editDuty(duty.id));
-            if (new Date(duty.startsAt) > new Date()) row.appendChild(edit);
-            const cancel = document.createElement("button");
-            cancel.className = "small-button secondary-button";
-            cancel.textContent = "Cancel assignment";
-            cancel.addEventListener("click", () => cancelDuty(duty.id, cancel));
-            row.appendChild(cancel);
-        }
-        list.appendChild(row);
-    });
+    const filter = document.getElementById("dutyFilter").value || "upcoming";
+    const query = document.getElementById("dutySearch").value.trim().toLowerCase();
+    const duties = getDuties().filter(duty => {
+        const future = duty.status === "assigned" && new Date(duty.endsAt) > new Date();
+        return (filter === "all" || (filter === "upcoming" ? future : !future)) && `${duty.student} ${duty.hospital} ${duty.rotation}`.toLowerCase().includes(query);
+    }).sort((a,b) => filter === "upcoming" ? new Date(a.startsAt)-new Date(b.startsAt) : new Date(b.startsAt)-new Date(a.startsAt));
+    document.getElementById("dutyList").innerHTML = duties.length ? duties.map(duty => `<article class="duty-item"><span class="status ${duty.status === "cancelled" ? "pending" : ""}">${dutyStatus(duty)}</span>${dutyDetails(duty)}<div class="duty-actions">${recordButton("duty-details",duty.id,"View details")}${instructor && duty.status === "assigned" && new Date(duty.endsAt) > new Date() ? `${new Date(duty.startsAt) > new Date() ? recordButton("edit-duty",duty.id,"Edit") : ""}${recordButton("cancel-duty",duty.id,"Cancel duty")}` : ""}</div></article>`).join("")
+        : `<div class="empty-state">${loaded.duties ? "No duties match this view." : "Loading duties… Check database permissions if this persists."}</div>`;
 }
-
 function localDateTime(value) {
     const date = new Date(value);
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    return new Date(date.getTime() - date.getTimezoneOffset()*60000).toISOString().slice(0,16);
 }
-
 function resetDutyForm() {
     document.getElementById("dutyForm").reset();
     document.getElementById("dutyId").value = "";
     document.getElementById("dutySave").textContent = "Assign duty";
     document.getElementById("dutyFormStatus").textContent = "";
+    if (typeof assignmentSelection !== "undefined") { assignmentSelection.duty.clear(); if(currentUser?.role === "instructor") renderStudentPicker("duty"); }
 }
-
 function editDuty(id) {
-    const duty = getDuties().find(item => item.id === id);
+    const duty = getDuties().find(item => String(item.id) === String(id));
     if (currentUser?.role !== "instructor" || !duty || duty.status !== "assigned" || new Date(duty.startsAt) <= new Date()) return;
-    const values = { dutyId: duty.id, dutyStudent: duty.studentUid, dutyRotation: duty.rotation,
-        dutyHospital: duty.hospital, dutyWard: duty.ward, dutyStart: localDateTime(duty.startsAt),
-        dutyEnd: localDateTime(duty.endsAt), dutyInstructions: duty.instructions };
-    Object.entries(values).forEach(([key, value]) => { document.getElementById(key).value = value || ""; });
-    // Keep the recipient fixed when editing; use a new assignment to change students.
+    const values = {dutyId:duty.id,dutyRotation:duty.rotation,dutyHospital:duty.hospital,dutyStart:localDateTime(duty.startsAt),dutyEnd:localDateTime(duty.endsAt),dutyInstructions:duty.instructions};
+    Object.entries(values).forEach(([key,value]) => {document.getElementById(key).value=value || "";});
+    renderStudentPicker("duty");
     document.getElementById("dutySave").textContent = "Save duty changes";
-    document.getElementById("dutyAssignmentCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("dutyAssignmentCard").scrollIntoView({behavior:"smooth",block:"start"});
 }
-
 function validateDuty(values, duties, now = Date.now()) {
     const start = new Date(values.startsAt).getTime(), end = new Date(values.endsAt).getTime();
-    if (!values.studentUid || !values.hospital.trim() || !values.ward.trim() || !values.rotation.trim()) throw new Error("Complete all required duty details.");
-    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) throw new Error("The shift end must be after its start. For overnight duties, choose the following end date.");
+    if (!values.studentUid || !values.hospital.trim() || !ROTATIONS.includes(values.rotation)) throw new Error("Select a student and rotation, and enter a hospital.");
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) throw new Error("Shift end must be after its start. Overnight duties need the following end date.");
     if (start < now) throw new Error("Choose a shift start in the future.");
-    if (duties.some(duty => duty.id !== values.id && duty.studentUid === values.studentUid && duty.status === "assigned" &&
-        new Date(duty.startsAt).getTime() < end && new Date(duty.endsAt).getTime() > start)) throw new Error("This student already has an overlapping duty assigned by you.");
+    if (duties.some(duty => duty.id !== values.id && duty.studentUid === values.studentUid && duty.status === "assigned" && new Date(duty.startsAt).getTime() < end && new Date(duty.endsAt).getTime() > start)) throw new Error("A selected student already has an overlapping duty assigned by you.");
 }
-
 async function saveDuty(event) {
     event.preventDefault();
     if (!db || currentUser?.role !== "instructor") return;
-    const button = document.getElementById("dutySave");
-    const status = document.getElementById("dutyFormStatus");
-    button.disabled = true;
-    status.textContent = "Saving assignment…";
+    const button = document.getElementById("dutySave"), status = document.getElementById("dutyFormStatus");
+    button.disabled=true; status.textContent="Saving assignments…";
     try {
-        if (!loaded.duties || !loaded.users) throw new Error("Wait for students and duty assignments to load before saving.");
-        const field = id => document.getElementById(id).value.trim();
-        const id = field("dutyId");
-        const original = id ? getDuties().find(duty => duty.id === id) : null;
-        if (id && (!original || original.status !== "assigned")) throw new Error("This assignment is no longer available to edit.");
-        const student = getUsers().find(user => user.id === field("dutyStudent") && user.role === "student");
-        if (!student) throw new Error("Select a registered student.");
-        if (original && original.studentUid !== student.id) throw new Error("Cancel this duty and create a new assignment to change its student.");
-        const values = { id, studentUid: student.id, hospital: field("dutyHospital"), ward: field("dutyWard"),
-            rotation: field("dutyRotation"), startsAt: field("dutyStart"), endsAt: field("dutyEnd") };
-        validateDuty(values, getDuties());
-        const reference = id ? db.collection("duties").doc(id) : db.collection("duties").doc();
-        const record = { ...values, id: reference.id, student: student.name, instructorUid: currentUser.uid,
-            instructor: currentUser.name, startsAt: new Date(values.startsAt).toISOString(), endsAt: new Date(values.endsAt).toISOString(),
-            instructions: field("dutyInstructions"), status: "assigned", createdAt: original?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
-        // Await cloud persistence; a denied write must never appear successful.
-        await reference.set(record);
-        resetDutyForm();
-        status.textContent = id ? "Duty changes saved." : "Duty assigned successfully.";
-        toast(status.textContent, "success");
-    } catch (error) {
-        status.textContent = error.message || "The duty could not be saved.";
-        toast(status.textContent, "error");
-    } finally {
-        button.disabled = false;
-    }
+        if (!loaded.duties) throw new Error("Wait for duty assignments to load.");
+        const field=id=>document.getElementById(id).value.trim();
+        const id=field("dutyId"), original=id ? getDuties().find(duty=>duty.id===id) : null;
+        if(id && (!original || original.status!=="assigned")) throw new Error("This duty is no longer available to edit.");
+        const students=original ? [{id:original.studentUid,name:original.student}] : selectedStudents("duty");
+        const now=new Date().toISOString();
+        const records=students.map(student=>{
+            const values={id:id||"",studentUid:student.id,hospital:field("dutyHospital"),rotation:field("dutyRotation"),startsAt:field("dutyStart"),endsAt:field("dutyEnd")};
+            validateDuty(values,getDuties());
+            return {...values,id:id || db.collection("duties").doc().id,student:student.name,instructorUid:currentUser.uid,instructor:currentUser.name,startsAt:new Date(values.startsAt).toISOString(),endsAt:new Date(values.endsAt).toISOString(),instructions:field("dutyInstructions"),status:"assigned",createdAt:original?.createdAt || now,updatedAt:now};
+        });
+        await writeBatchRecords("duties",records);
+        await notifySavedRecords(records,"duty");
+        resetDutyForm();status.textContent=id ? "Duty changes saved." : `Duty assigned to ${records.length} student${records.length===1?"":"s"}.`;
+        toast(status.textContent,"success");
+    }catch(error){status.textContent=error.message || "Could not save duties.";toast(status.textContent,"error");}
+    finally{button.disabled=false;}
 }
-
-async function cancelDuty(id, button) {
-    const duty = getDuties().find(item => item.id === id);
-    if (!db || currentUser?.role !== "instructor" || !duty) return;
-    if (!confirm(`Cancel the hospital duty assigned to ${duty.student}?`)) return;
-    button.disabled = true;
-    try {
-        await db.collection("duties").doc(id).update({ status: "cancelled", updatedAt: new Date().toISOString() });
-        if (document.getElementById("dutyId").value === id) resetDutyForm();
-        toast("Duty cancelled.", "success");
-    } catch (error) {
-        toast(error.message || "The duty could not be cancelled.", "error");
-    } finally {
-        button.disabled = false;
-    }
+async function cancelDuty(id,button) {
+    const duty=getDuties().find(item=>String(item.id)===String(id));
+    if(!db || currentUser?.role!=="instructor" || !duty || duty.status!=="assigned")return;
+    if(!confirm(`Cancel the duty assigned to ${duty.student}?`))return;
+    button.disabled=true;
+    try{await db.collection("duties").doc(String(id)).update({status:"cancelled",updatedAt:new Date().toISOString()});if(document.getElementById("dutyId").value===String(id))resetDutyForm();toast("Duty cancelled.","success");}
+    catch(error){reportCloudError("cancel this duty",error);}finally{button.disabled=false;}
 }
-
 function initDutyForm() {
-    document.getElementById("dutyForm").addEventListener("submit", saveDuty);
-    document.getElementById("dutyReset").addEventListener("click", resetDutyForm);
-    // Advance the next-duty card when a shift ends, even without a database update.
-    setInterval(() => { if (currentUser) { renderNextDuty(); renderDuties(); } }, 60000);
+    document.getElementById("dutyForm").addEventListener("submit",saveDuty);
+    document.getElementById("dutyReset").addEventListener("click",resetDutyForm);
+    setInterval(()=>{if(currentUser){renderNextDuty();renderDuties();}},60000);
 }
 
 function updateCloudStatus(failed = false) {
@@ -3471,6 +3445,7 @@ const STORAGE = {
     announcements: "announcements",
     notifications: "notifications",
     attendance: "attendance",
+    roster: "roster",
     duties: "duties"
 };
 
@@ -3558,6 +3533,7 @@ function stopListeners() {
 
     clearTimeout(renderTimer);
     resetDutyForm();
+    resetWorkspace();
     updateCloudStatus();
     listenErrorShown = false;
 }
@@ -3629,6 +3605,7 @@ function startListeners() {
     if (me.role === "instructor") {
 
         listen("users", col("users"));
+        listen("roster", col("roster").where("instructorUid", "==", me.uid));
         listen("announcements", col("announcements"));
         listen("activities", col("activities"));
         listen("evaluations", col("evaluations"));
@@ -3640,6 +3617,7 @@ function startListeners() {
     } else {
 
         listen("users", col("users").where("role", "==", "instructor"));
+        loaded.roster = true;
         listen("announcements", col("announcements"));
         listen("activities", col("activities").where("student", "==", me.name));
         listen("evaluations", col("evaluations").where("student", "==", me.name));
@@ -3660,78 +3638,21 @@ function scheduleRender() {
     renderTimer = setTimeout(() => {
         if (!currentUser) return;
         populateStudentSelects();
-        ensureTodayAttendance();
+
         renderAll();
     }, 60);
 }
 
 /* Instructor drop-downs list the students who have registered. */
 function populateStudentSelects() {
-
-    const students = getUsers()
-        .filter(user => user.role === "student" && user.name)
-        .map(user => user.name)
-        .sort((a, b) => a.localeCompare(b));
-
-    ["newActivityStudent", "evaluationStudent", "feedbackStudent"].forEach(id => {
-
-        const select = document.getElementById(id);
-        if (!select) return;
-
-        const current = select.value;
-
-        select.innerHTML = students.length
-            ? students.map(name =>
-                `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`
-            ).join("")
-            : `<option value="">No registered students yet</option>`;
-
-        if (students.includes(current)) select.value = current;
+    if (currentUser?.role !== "instructor") return;
+    const students = rosterStudents();
+    ["evaluationStudent", "feedbackStudent"].forEach(id => {
+        const select = document.getElementById(id), previous = select.value;
+        select.innerHTML = '<option value="">Select a student from My Students</option>' + students.map(student => `<option value="${escapeHTML(id === "evaluationStudent" ? student.id : student.name)}">${escapeHTML(student.name)}</option>`).join("");
+        if ([...select.options].some(option => option.value === previous)) select.value = previous;
     });
-}
-
-/*
-   Gives every registered student a roster line for today (status "Pending")
-   so the instructor can mark Present / Late / Absent with the Update button.
-*/
-const attendanceEnsured = new Set();
-
-function ensureTodayAttendance() {
-
-    if (!db || !currentUser || currentUser.role !== "instructor") return;
-    if (!loaded.users || !loaded.attendance) return;
-
-    const today = todayISO();
-    const existing = new Set(cache.attendance.map(record => String(record.id)));
-    const batch = db.batch();
-    let changes = 0;
-
-    cache.users
-        .filter(user => user.role === "student")
-        .forEach(user => {
-
-            const id = today + "_" + user.id;
-
-            if (existing.has(id) || attendanceEnsured.has(id)) return;
-
-            attendanceEnsured.add(id);
-
-            batch.set(db.collection("attendance").doc(id), {
-                id,
-                student: user.name,
-                studentUid: user.id,
-                rotation: user.rotation || "",
-                date: today,
-                status: "Pending",
-                time: "—"
-            });
-
-            changes++;
-        });
-
-    if (changes) {
-        batch.commit().catch(error => reportCloudError("create the attendance roster", error));
-    }
+    renderStudentPicker("duty"); renderStudentPicker("activity"); populateEvaluationDuties();
 }
 
 /* ---------- Uploaded submission files (Railway file server) ---------- */
@@ -3756,21 +3677,34 @@ async function fileApiError(response, fallback) {
     return fallback + " (" + response.status + ")";
 }
 
-async function saveSubmissionFile(activityId, file) {
-
-    const form = new FormData();
-    form.append("file", file);
-
-    const response = await fetch(
-        fileApiBase() + "/upload/" + encodeURIComponent(activityId),
-        { method: "POST", headers: await fileApiHeaders(), body: form }
-    );
-
-    if (!response.ok) {
-        throw new Error(await fileApiError(response, "The file could not be uploaded"));
-    }
-
-    return true;
+function uploadHttpError(status, body) {
+    let detail="";
+    try { detail=JSON.parse(body).error || ""; } catch(error) { /* Some servers return HTML. */ }
+    if(status===413) return "The upload server rejected this file as too large. The owner must raise its upload limit to 100 MB.";
+    if(status===401 || status===403) return detail || "The upload server denied access. Sign in again. If this persists, the owner must check Firebase token verification and file permissions.";
+    if(status===404) return "The upload endpoint was not found. The owner must check the Railway /upload route.";
+    return detail || `Upload server error (${status}). Please try again or send this error to the owner.`;
+}
+async function saveSubmissionFile(activityId,file,onProgress=()=>{}) {
+    if(file.size>MAX_UPLOAD_BYTES) throw new Error("Choose a file of 100 MB or less.");
+    const base=new URL(fileApiBase());
+    if(!["https:","http:"].includes(base.protocol))throw new Error("The upload server URL is invalid.");
+    const sessionUid=currentUser?.uid;
+    const headers=await fileApiHeaders();
+    if(!sessionUid || currentUser?.uid!==sessionUid)throw new Error("Your sign-in session changed. Sign in again before uploading.");
+    return new Promise((resolve,reject)=>{
+        const xhr=new XMLHttpRequest();activeUpload=xhr;
+        xhr.open("POST",base.href.replace(/\/+$/,"")+"/upload/"+encodeURIComponent(activityId));
+        xhr.timeout=10*60*1000;
+        Object.entries(headers).forEach(([key,value])=>xhr.setRequestHeader(key,value));
+        xhr.upload.onprogress=event=>{if(event.lengthComputable)onProgress(Math.min(100,Math.round(event.loaded/event.total*100)));};
+        const finish=()=>{if(activeUpload===xhr)activeUpload=null;};
+        xhr.onload=()=>{finish();if(xhr.status>=200 && xhr.status<300)resolve(true);else reject(new Error(uploadHttpError(xhr.status,xhr.responseText)));};
+        xhr.onerror=()=>{finish();reject(new Error("Could not reach the upload server. Check your connection. The owner may need to fix Railway availability or allow this website through CORS."));};
+        xhr.ontimeout=()=>{finish();reject(new Error("Upload timed out after 10 minutes. Try a smaller file or a faster connection."));};
+        xhr.onabort=()=>{finish();reject(new Error("Upload cancelled. Your activity has not been submitted."));};
+        const form=new FormData();form.append("file",file);xhr.send(form);
+    });
 }
 
 async function openSubmissionFile(activityId, download = false) {
@@ -3863,11 +3797,10 @@ function getUsers() {
 }
 
 function getActivities() {
-    return loadData(STORAGE.activities, []);
+    return loadData(STORAGE.activities, []).filter(item => currentUser && (currentUser.role === "student" ? ownsStudentRecord(item) : ownsInstructorRecord(item)));
 }
-
 function getEvaluations() {
-    return loadData(STORAGE.evaluations, []);
+    return loadData(STORAGE.evaluations, []).filter(item => currentUser && (currentUser.role === "student" ? ownsStudentRecord(item) && item.released !== false : ownsInstructorRecord(item)));
 }
 
 function getFeedback() {
@@ -3883,9 +3816,8 @@ function getNotifications() {
 }
 
 function getAttendance() {
-    return loadData(STORAGE.attendance, []);
+    return loadData(STORAGE.attendance, []).filter(item => currentUser && (currentUser.role === "student" ? ownsStudentRecord(item) : (item.instructorUid ? item.instructorUid === currentUser.uid : getRoster().some(member => member.student === item.student))));
 }
-
 
 /* =========================================
    C. APPLICATION STATE
@@ -3896,6 +3828,7 @@ let feedbackRating = 5;
 
 const navigationItems = [
     { id: "Dashboard", icon: "▦", label: "Overview", roles: ["student", "instructor"] },
+    { id: "students", icon: "♙", label: "My Students", roles: ["instructor"] },
     { id: "activities", icon: "↗", label: "Activities", roles: ["student", "instructor"] },
     { id: "submissions", icon: "▤", label: "Submissions", roles: ["instructor"] },
     { id: "evaluations", icon: "▥", label: "Evaluations", roles: ["student", "instructor"] },
@@ -4446,6 +4379,7 @@ function navigate(pageId) {
 
     document.getElementById("sidebar").classList.remove("open");
 
+    if (pageId === "students") renderRoster();
     if (pageId === "duties") renderDuties();
     if (pageId === "attendance") renderAttendance();
     if (pageId === "activities") renderActivities();
@@ -4475,6 +4409,10 @@ function toast(message, type = "success") {
     element.className = "toast " + type;
     element.textContent = message;
 
+    while(container.children.length>=2)container.firstElementChild.remove();
+    element.setAttribute("role",type === "error" ? "alert" : "status");
+    element.addEventListener("click",()=>element.remove());
+    element.title="Click to dismiss";
     container.appendChild(element);
 
     setTimeout(() => {
@@ -4585,7 +4523,7 @@ function renderDashboard() {
     const evaluations = getEvaluations().filter(item => item.instructorUid ? item.instructorUid === currentUser.uid : item.instructor === currentUser.name);
 
     document.getElementById("totalStudents").textContent =
-        new Set([...students, ...getDuties().map(item => item.student), ...evaluations.map(item => item.student)]).size;
+        rosterStudents().length;
 
     document.getElementById("pendingSubmissions").textContent = pending;
 
@@ -4649,62 +4587,25 @@ function openActivityForm() {
     }
 }
 
-document.getElementById("createActivityForm").addEventListener("submit", event => {
+async function assignActivities(event) {
     event.preventDefault();
-
-    if (!currentUser || currentUser.role !== "instructor") {
-        toast("Only clinical instructors can publish activities.", "error");
-        return;
-    }
-
-    const student = document.getElementById("newActivityStudent").value;
-    const title = document.getElementById("newActivityTitle").value.trim();
-    const type = document.getElementById("newActivityType").value;
-    const rotation = document.getElementById("newActivityRotation").value;
-    const due = document.getElementById("newActivityDue").value;
-    const description = document.getElementById("newActivityDescription").value.trim();
-
-    if (!student || !title || !type || !rotation || !due || !description) {
-        toast("Please complete all activity details.", "error");
-        return;
-    }
-
-    if (due < todayISO()) {
-        toast("The deadline cannot be earlier than today.", "error");
-        return;
-    }
-
-    const activities = getActivities();
-    activities.push({
-        id: Date.now(),
-        student,
-        title,
-        type,
-        rotation,
-        description,
-        due,
-        status: "Not started",
-        createdAt: todayISO(),
-        createdBy: currentUser.name,
-        instructorUid: currentUser.uid,
-        submittedAt: "",
-        fileName: "",
-        notes: "",
-        instructorComment: ""
-    });
-
-    saveData(STORAGE.activities, activities);
-    addNotification(
-        "New clinical activity assigned",
-        `"${title}" has been assigned to you. Deadline: ${prettyDate(due)}.`,
-        { name: student }
-    );
-
-    document.getElementById("createActivityForm").reset();
-    document.getElementById("activityFormCard").style.display = "none";
-    renderAll();
-    toast(`Activity assigned to ${student}.`, "success");
-});
+    if (!db || currentUser?.role !== "instructor") return;
+    const form = document.getElementById("createActivityForm");
+    const button = form.querySelector('button[type="submit"]'); button.disabled = true;
+    try {
+        const students = selectedStudents("activity");
+        const field = id => document.getElementById(id).value.trim();
+        const title=field("newActivityTitle"),type=field("newActivityType"),rotation=field("newActivityRotation"),due=field("newActivityDue"),description=field("newActivityDescription");
+        if (!title || !type || !ROTATIONS.includes(rotation) || !description || !due) throw new Error("Complete all activity details.");
+        if (due < todayISO()) throw new Error("The deadline cannot be before today.");
+        const base=Date.now()*1000+Math.floor(Math.random()*500);
+        const records=students.map((student,index)=>({id:base+index,student:student.name,studentUid:student.id,title,type,rotation,description,due,status:"Not started",createdAt:todayISO(),createdBy:currentUser.name,instructorUid:currentUser.uid,submittedAt:"",fileName:"",notes:"",instructorComment:""}));
+        await writeBatchRecords("activities",records);
+        await notifySavedRecords(records,"activity");
+        form.reset();assignmentSelection.activity.clear();renderStudentPicker("activity");document.getElementById("activityFormCard").style.display="none";
+        toast(`Activity assigned to ${records.length} student${records.length===1?"":"s"}.`,"success");
+    }catch(error){reportCloudError("assign activities",error);}finally{button.disabled=false;}
+}
 
 function renderActivities() {
 
@@ -4743,7 +4644,7 @@ function renderActivities() {
             item.type.toLowerCase().includes(query);
 
         const matchesStatus =
-            filter === "all" || item.status === filter;
+            filter === "all" || activityDisplayStatus(item) === filter;
 
         return matchesSearch && matchesStatus;
     });
@@ -4761,7 +4662,7 @@ function renderActivities() {
                         <h3>${escapeHTML(item.title)}</h3>
 
                         <span class="status ${item.status === "Submitted" || item.status === "Reviewed" ? "" : "progress"}">
-                            ${escapeHTML(item.status)}
+                            ${escapeHTML(activityDisplayStatus(item))}
                         </span>
                     </div>
 
@@ -4771,6 +4672,8 @@ function renderActivities() {
                     </p>
 
                     <p>${escapeHTML(item.description || "")}</p>
+                    ${item.fileName ? `<p>Attached: ${escapeHTML(item.fileName)}</p>` : ""}
+                    ${uploadProgress.has(String(item.id)) ? `<p role="status">${escapeHTML(uploadProgress.get(String(item.id)))}</p>` : ""}
 
                     <p>
                         ${currentUser.role === "instructor"
@@ -4787,6 +4690,7 @@ function renderActivities() {
                     ` : ""}
 
                     <div class="activity-actions">
+                        ${recordButton("activity-details",item.id,"View details")}
 
                         ${currentUser.role === "student" &&
                           item.status !== "Reviewed" ? `
@@ -4821,92 +4725,57 @@ function renderActivities() {
 }
 
 function submitActivity(id) {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt";
-
-    fileInput.onchange = async () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-
-        if (file.size > 10 * 1024 * 1024) {
-            toast("Please select a file smaller than 10 MB.", "error");
-            return;
+    if(uploadBusy){toast("Another upload is in progress.","error");return;}
+    const item=getActivities().find(activity=>String(activity.id)===String(id));
+    if(currentUser?.role!=="student" || !item || !ownsStudentRecord(item) || item.status==="Reviewed")return;
+    openRecordDialog("Submit activity",`<h3>${escapeHTML(item.title)}</h3><p>PDF, DOC, DOCX, JPG, JPEG, PNG, or TXT. Maximum: <strong>100 MB per file</strong>.</p><form id="uploadForm"><div class="form-group"><label for="submissionFile">Select file</label><input type="file" id="submissionFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" required></div><div class="form-group"><label for="submissionNotes">Notes for your instructor</label><textarea id="submissionNotes" maxlength="5000"></textarea></div><progress id="submissionProgress" max="100" value="0" aria-label="File upload progress"></progress><p id="submissionStatus" role="status">Choose a file to submit.</p><div class="duty-actions"><button id="submissionSave" class="primary-button" type="submit">Upload and submit</button><button id="submissionCancel" type="button" class="small-button secondary-button" hidden>Cancel upload</button></div></form>`);
+    document.getElementById("submissionNotes").value=item.notes || "";
+    document.getElementById("submissionCancel").addEventListener("click",()=>{if(activeUpload)activeUpload.abort();});
+    document.getElementById("uploadForm").addEventListener("submit",async event=>{
+        event.preventDefault();if(uploadBusy)return;
+        const file=document.getElementById("submissionFile").files[0];
+        const status=document.getElementById("submissionStatus"),button=document.getElementById("submissionSave"),cancel=document.getElementById("submissionCancel"),fileField=document.getElementById("submissionFile");
+        if(!file)return;
+        if(!file.size){status.textContent="The selected file is empty. Choose a file containing your work.";return;}
+        if(file.size>MAX_UPLOAD_BYTES){status.textContent="File exceeds 100 MB. Select a smaller file.";return;}
+        if(!/\.(pdf|doc|docx|jpg|jpeg|png|txt)$/i.test(file.name)){status.textContent="Unsupported file type. Choose PDF, Word, JPG, PNG, or TXT.";return;}
+        const uid=currentUser.uid;
+        const notes=document.getElementById("submissionNotes").value.trim();
+        uploadSession=uid;uploadBusy=true;button.disabled=true;fileField.disabled=true;cancel.hidden=false;
+        let uploaded=false;
+        const report=message=>{uploadProgress.set(String(id),message);if(currentUser?.uid===uid)status.textContent=message;};
+        try{
+            report("Connecting to upload server…");
+            await saveSubmissionFile(item.id,file,percent=>{document.getElementById("submissionProgress").value=percent;report(percent===100?"File sent. Waiting for the upload server…":`Uploading: ${percent}%`);});
+            uploaded=true;cancel.hidden=true;
+            if(currentUser?.uid!==uid)throw new Error("Your session changed. Sign in again to check this submission.");
+            report("File uploaded. Saving submission record…");
+            const latest=await db.collection("activities").doc(String(item.id)).get();
+            if(!latest.exists || !ownsStudentRecord(latest.data()) || latest.data().status==="Reviewed")throw new Error("This assignment is no longer available for submission.");
+            await db.collection("activities").doc(String(item.id)).update({fileName:file.name,fileSize:file.size,notes,status:"Submitted",submittedAt:todayISO(),submittedAtTime:new Date().toISOString(),reviewedAt:"",instructorComment:""});
+            await notifySavedRecords([item],"submission");
+            report("Submitted successfully. Your instructor can now review your work.");
+            toast("File uploaded and submission saved.","success");
+            button.textContent="Submitted";
+            document.getElementById("submissionNotes").disabled=true;
+        }catch(error){
+            const message=(uploaded?"The file uploaded, but the submission record could not be saved. ":"")+(error.message || "Submission failed. Please try again.");
+            report(message);if(currentUser?.uid===uid)toast(message,"error");button.disabled=false;fileField.disabled=false;
+        }finally{
+            cancel.hidden=true;
+            if(uploadSession===uid){uploadBusy=false;uploadSession=null;}
+            if(currentUser?.uid===uid)renderActivities();
         }
-
-        const activity = getActivities().find(item =>
-            item.id === id && item.student === currentUser.name
-        );
-        if (!activity) {
-            toast("This activity does not belong to your account.", "error");
-            return;
-        }
-
-        const notes = prompt("Add notes for your instructor:", activity.notes || "") ?? "";
-
-        try {
-            await saveSubmissionFile(id, file);
-
-            const activities = getActivities();
-            const savedActivity = activities.find(item => item.id === id);
-            savedActivity.fileName = file.name;
-            savedActivity.fileSize = file.size;
-            savedActivity.notes = notes;
-            savedActivity.status = "Submitted";
-            savedActivity.submittedAt = todayISO();
-            savedActivity.reviewedAt = "";
-            savedActivity.instructorComment = "";
-
-            saveData(STORAGE.activities, activities);
-            addNotification(
-                "New student submission",
-                `${currentUser.name} submitted "${activity.title}" for review.`,
-                { role: "instructor" }
-            );
-
-            renderAll();
-            toast("Your file was uploaded and submitted successfully.", "success");
-        } catch (error) {
-            toast(error.message || "The file could not be saved. Please try again.", "error");
-        }
-    };
-
-    fileInput.click();
+    });
 }
-
 function changeActivityStatus(id) {
-
-    const activities = getActivities();
-
-    const activity = activities.find(item =>
-        item.id === id && item.student === currentUser.name
-    );
-
-    if (!activity) return;
-
-    const next = prompt(
-        "Enter status: Not started, In progress, or Submitted",
-        activity.status
-    );
-
-    const allowed = ["Not started", "In progress", "Submitted"];
-
-    if (!allowed.includes(next)) {
-        toast("Choose a valid activity status.", "error");
-        return;
-    }
-
-    activity.status = next;
-
-    if (next === "Submitted") {
-        activity.submittedAt = todayISO();
-    }
-
-    saveData(STORAGE.activities, activities);
-
-    renderAll();
-
-    toast("Activity status updated.", "success");
+    const activity=getActivities().find(item=>String(item.id)===String(id));
+    if(currentUser?.role!=="student" || !activity || activity.status==="Reviewed")return;
+    openRecordDialog("Activity progress",`<p>To mark work as Submitted, use Upload and submit.</p><div class="form-group"><label for="activityProgress">Progress</label><select id="activityProgress"><option>Not started</option><option>In progress</option></select></div><button type="button" class="primary-button" id="activityProgressSave">Save progress</button><p id="activityProgressStatus" role="status"></p>`);
+    if(["Not started","In progress"].includes(activity.status))document.getElementById("activityProgress").value=activity.status;
+    const button=document.getElementById("activityProgressSave");
+    if(activity.status==="Submitted"){button.disabled=true;document.getElementById("activityProgressStatus").textContent="This work is already submitted. Use Update submission to change its file.";}
+    button.addEventListener("click",async()=>{button.disabled=true;try{await db.collection("activities").doc(String(activity.id)).update({status:document.getElementById("activityProgress").value});closeRecordDialog();toast("Progress saved.","success");}catch(error){document.getElementById("activityProgressStatus").textContent=error.message;button.disabled=false;}});
 }
 
 function reviewActivity(id) {
@@ -4983,7 +4852,7 @@ function renderSubmissions() {
             item.title.toLowerCase().includes(query);
 
         const matchesFilter =
-            filter === "all" || item.status === filter;
+            filter === "all" || activityDisplayStatus(item) === filter;
 
         return matchesQuery && matchesFilter;
     });
@@ -5069,247 +4938,81 @@ function renderEvaluationCriteria() {
 
 renderEvaluationCriteria();
 
-document.getElementById("evaluationForm").addEventListener("submit", event => {
-
+async function releaseEvaluation(event) {
     event.preventDefault();
-
-    if (currentUser.role !== "instructor") {
-        toast("Only clinical instructors can submit evaluations.", "error");
-        return;
-    }
-
-    if (!document.getElementById("evaluationStudent").value) {
-        toast("Select a registered student.", "error");
-        return;
-    }
-
-    const scores = {};
-
-    criteria.forEach((criterion, index) => {
-        scores[criterion] = Number(
-            document.getElementById("criterion" + index).value
-        );
-    });
-
-    if (Object.values(scores).some(score => !Number.isFinite(score) || score < 1 || score > 5)) {
-        toast("Rate every evaluation criterion before saving.", "error");
-        return;
-    }
-
-    const evaluations = getEvaluations();
-
-    evaluations.push({
-        id: Date.now(),
-        student: document.getElementById("evaluationStudent").value,
-        rotation: document.getElementById("evaluationRotation").value,
-        scores,
-        comment: document.getElementById("evaluationComment").value.trim(),
-        date: todayISO(),
-        instructor: currentUser.name,
-        instructorUid: currentUser.uid,
-        released: true,
-        releasedAt: new Date().toISOString()
-    });
-
-    saveData(STORAGE.evaluations, evaluations);
-
-    const evaluatedStudent = document.getElementById("evaluationStudent").value;
-    addNotification(
-        "Clinical evaluation released",
-        `Your ${document.getElementById("evaluationRotation").value} evaluation is available in Evaluation & Feedback.`,
-        { name: evaluatedStudent }
-    );
-
-    document.getElementById("evaluationComment").value = "";
-    renderEvaluationCriteria();
-
-    renderAll();
-
-    toast("Evaluation saved successfully.", "success");
-});
+    if(!db || currentUser?.role!=="instructor")return;
+    const button=document.getElementById("evaluationForm").querySelector('button[type="submit"]');button.disabled=true;
+    try{
+        const student=rosterStudents().find(item=>item.id===document.getElementById("evaluationStudent").value);
+        if(!student)throw new Error("Select a student from My Students.");
+        const dutyId=document.getElementById("evaluationDuty").value;
+        const duty=dutyId ? getDuties().find(item=>item.id===dutyId && item.studentUid===student.id && item.status==="assigned") : null;
+        if(dutyId && !duty)throw new Error("The selected duty is unavailable.");
+        const dutyDate=duty ? localDateTime(duty.startsAt).slice(0,10) : document.getElementById("evaluationDutyDate").value;
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(dutyDate) || dutyDate>todayISO())throw new Error("Choose the actual duty date, today or earlier.");
+        const rotation=duty?.rotation || document.getElementById("evaluationRotation").value;
+        if(!ROTATIONS.includes(rotation))throw new Error("Select a clinical rotation.");
+        const comment=document.getElementById("evaluationComment").value.trim();
+        if(!comment)throw new Error("Enter evaluation comments.");
+        const scores=Object.fromEntries(criteria.map((name,index)=>[name,Number(document.getElementById("criterion"+index).value)]));
+        if(Object.values(scores).some(value=>!Number.isInteger(value)||value<1||value>5))throw new Error("Rate every criterion from 1 to 5.");
+        const ref=db.collection("evaluations").doc();
+        await ref.set({id:ref.id,student:student.name,studentUid:student.id,instructor:currentUser.name,instructorUid:currentUser.uid,rotation,dutyId:duty?.id || "",dutyDate,date:dutyDate,hospital:duty?.hospital || "",scores,comment,recordedAt:new Date().toISOString(),released:true,releasedAt:new Date().toISOString()});
+        await notifySavedRecords([{student:student.name,studentUid:student.id,rotation,dutyDate}],"evaluation");
+        document.getElementById("evaluationForm").reset();renderEvaluationCriteria();populateStudentSelects();
+        toast("Evaluation released and saved to history.","success");
+    }catch(error){reportCloudError("release this evaluation",error);}finally{button.disabled=false;}
+}
 
 function renderEvaluations() {
-
-    const history = document.getElementById("evaluationHistory");
-    const evaluationCard = document.getElementById("clinicalEvaluationCard");
-
-    if (!history) return;
-
-    // Only clinical instructors can create formal rubric-based evaluations.
-    if (evaluationCard) {
-        evaluationCard.style.display =
-            currentUser.role === "instructor" ? "block" : "none";
-    }
-
-    const evaluations = getEvaluations().filter(item =>
-        currentUser.role === "instructor" ||
-        (item.student === currentUser.name && item.released !== false)
-    );
-
-    history.innerHTML = evaluations.length
-        ? evaluations.slice().reverse().map(item => {
-
-            const average = Object.values(item.scores)
-                .reduce((sum, value) => sum + value, 0) /
-                Object.values(item.scores).length;
-
-            return `
-                <div class="list-row">
-
-                    <div class="list-icon green">✓</div>
-
-                    <div class="list-main">
-                        <strong>${escapeHTML(item.student)}</strong>
-                        <span>${escapeHTML(item.rotation)}</span>
-                        <span>${escapeHTML(item.comment)}</span>
-                    </div>
-
-                    <div class="list-end">
-                        <strong>${average.toFixed(1)}/5</strong>
-                        <small>${escapeHTML(prettyDate(item.date))}</small>
-                    </div>
-
-                </div>
-            `;
-        }).join("")
-        : `<div class="empty-state">No evaluations have been recorded.</div>`;
+    document.getElementById("clinicalEvaluationCard").style.display=currentUser.role==="instructor"?"block":"none";
+    const records=getEvaluations().slice().sort((a,b)=>String(b.recordedAt || b.date).localeCompare(String(a.recordedAt || a.date)));
+    document.getElementById("evaluationHistory").innerHTML=records.length?records.map(item=>`<details class="record-details"><summary>${escapeHTML(item.student)} · ${escapeHTML(item.rotation)} · ${item.dutyDate ? escapeHTML(prettyDate(item.dutyDate)) : "Older evaluation"} · ${evaluationSummary([item]).overall?.toFixed(2) || "—"}/5</summary>${evaluationDetails(item)}<div class="duty-actions">${recordButton("evaluation-details",item.id,"View full evaluation")}</div></details>`).join(""):'<div class="empty-state">No evaluations have been recorded.</div>';
 }
 
-
-/* =========================================
-   K. ATTENDANCE
-========================================= */
-
+function attendanceRows() {
+    const records=getAttendance();
+    const represented=new Set();
+    const rows=getDuties().map(duty=>{
+        const record=records.find(item=>item.dutyId===duty.id && (item.studentUid===duty.studentUid || !item.studentUid));
+        if(record)represented.add(String(record.id));
+        return {duty,record,student:duty.student,rotation:duty.rotation,date:localDateTime(duty.startsAt).slice(0,10),status:record?.status || "Not recorded",hospital:duty.hospital};
+    });
+    records.filter(record=>!represented.has(String(record.id))).forEach(record=>rows.push({record,student:record.student,rotation:record.rotation,date:record.date,status:record.status,hospital:record.hospital || "—"}));
+    const rotation=document.getElementById("attendanceRotation").value || "all",date=document.getElementById("attendanceDate").value,view=document.getElementById("attendanceView").value || "all";
+    return rows.filter(row=>(rotation==="all"||row.rotation===rotation)&&(!date||row.date===date)&&(view==="all"||(view==="unmarked"?!row.record:!!row.record))).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(a.student).localeCompare(String(b.student)));
+}
 function renderAttendanceStats() {
-
-    const records = getAttendance().filter(item =>
-        currentUser.role === "instructor" ||
-        item.student === currentUser.name
-    );
-
-    const present = records.filter(item => item.status === "Present").length;
-    const late = records.filter(item => item.status === "Late").length;
-    const absent = records.filter(item => item.status === "Absent").length;
-
-    document.getElementById("attendancePresent").textContent = present;
-    document.getElementById("attendanceLate").textContent = late;
-    document.getElementById("attendanceAbsent").textContent = absent;
-
-    document.getElementById("attendanceRate").textContent =
-        (present + late + absent)
-            ? Math.round((present + late) / (present + late + absent) * 100) + "%"
-            : "0%";
+    const records=attendanceRows().filter(row=>row.record).map(row=>row.record);
+    const counts={Present:0,Late:0,Absent:0};records.forEach(record=>{if(record.status in counts)counts[record.status]++;});
+    document.getElementById("attendancePresent").textContent=counts.Present;
+    document.getElementById("attendanceLate").textContent=counts.Late;
+    document.getElementById("attendanceAbsent").textContent=counts.Absent;
+    const total=counts.Present+counts.Late+counts.Absent;
+    document.getElementById("attendanceRate").textContent=total?Math.round((counts.Present+counts.Late)/total*100)+"%":"—";
 }
-
 function renderAttendance() {
-
-    const container = document.getElementById("attendanceTable");
-
-    if (!container) return;
-
-    const rotation =
-        document.getElementById("attendanceRotation")?.value || "all";
-
-    const date =
-        document.getElementById("attendanceDate")?.value || "";
-
-    let records = getAttendance();
-
-    if (currentUser.role === "student") {
-        records = records.filter(item =>
-            item.student === currentUser.name
-        );
-    }
-
-    records = records.filter(item =>
-        (rotation === "all" || item.rotation === rotation) &&
-        (!date || item.date === date)
-    );
-
-    container.innerHTML = records.length
-        ? `<div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>STUDENT</th>
-                        <th>ROTATION</th>
-                        <th>DATE</th>
-                        <th>TIME</th>
-                        <th>STATUS</th>
-                        ${currentUser.role === "instructor" ? "<th>ACTION</th>" : ""}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    ${records.map(item => `
-                        <tr>
-                            <td>${escapeHTML(item.student)}</td>
-                            <td>${escapeHTML(item.rotation)}</td>
-                            <td>${escapeHTML(prettyDate(item.date))}</td>
-                            <td>${escapeHTML(item.time)}</td>
-                            <td>
-                                <span class="status ${item.status.toLowerCase()}">
-                                    ${escapeHTML(item.status)}
-                                </span>
-                            </td>
-
-                            ${currentUser.role === "instructor" ? `
-                                <td>
-                                    <button class="link-button"
-                                            onclick="changeAttendance('${escapeHTML(String(item.id))}')">
-                                        Update
-                                    </button>
-                                </td>
-                            ` : ""}
-                        </tr>
-                    `).join("")}
-                </tbody>
-            </table>
-        </div>`
-        : `<div class="empty-state">No attendance records found.</div>`;
-
+    const rows=attendanceRows(),instructor=currentUser.role==="instructor";
+    document.getElementById("attendanceTable").innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>STUDENT / DUTY</th><th>ROTATION</th><th>DUTY DATE</th><th>ATTENDANCE</th><th>RECORDED BY</th>${instructor?"<th>ACTION</th>":""}</tr></thead><tbody>${rows.map(row=>{
+        const editable=instructor && row.duty?.status==="assigned" && new Date(row.duty.startsAt)<=new Date() && rosterContains(row.duty.studentUid);
+        return `<tr><td><strong>${escapeHTML(row.student)}</strong><br>${escapeHTML(row.hospital)}${row.duty?`<br><small>${escapeHTML(dutyTime(row.duty.startsAt))} – ${escapeHTML(dutyTime(row.duty.endsAt))}</small>`:""}</td><td>${escapeHTML(row.rotation)}</td><td>${escapeHTML(prettyDate(row.date))}</td><td>${editable?`<select class="attendance-status" aria-label="Attendance for ${escapeHTML(row.student)}"><option value="">Not recorded</option>${["Present","Late","Absent"].map(status=>`<option ${row.status===status?"selected":""}>${status}</option>`).join("")}</select>`:`<span class="status ${row.status==="Absent"?"pending":""}">${escapeHTML(row.status)}</span>`}</td><td>${escapeHTML(row.record?.instructor || "—")}${row.record?.markedAt?`<br><small>${escapeHTML(dutyTime(row.record.markedAt))}</small>`:""}</td>${instructor?`<td>${editable?recordButton("save-attendance",row.duty.id,"Save"):row.duty?.status==="cancelled"?"Duty cancelled":row.duty && new Date(row.duty.startsAt)>new Date()?"Duty has not started":"History only"}</td>`:""}</tr>`;
+    }).join("")}</tbody></table></div>`:'<div class="empty-state">No assigned duties or attendance records match this view.</div>';
     renderAttendanceStats();
 }
-
-function changeAttendance(id) {
-
-    const records = getAttendance();
-
-    const record = records.find(item => String(item.id) === String(id));
-
-    if (!record) return;
-
-    const status = prompt(
-        "Enter attendance status: Present, Late, or Absent",
-        record.status
-    );
-
-    if (!["Present", "Late", "Absent"].includes(status)) {
-        toast("Choose a valid attendance status.", "error");
-        return;
-    }
-
-    record.status = status;
-
-    if (status === "Present") {
-        record.time = "06:45 AM";
-    } else if (status === "Late") {
-        record.time = "07:15 AM";
-    } else {
-        record.time = "—";
-    }
-
-    saveData(STORAGE.attendance, records);
-
-    renderAttendance();
-
-    toast("Attendance updated.", "success");
+async function saveAttendance(dutyId,button) {
+    if(!db || currentUser?.role!=="instructor")return;
+    const duty=getDuties().find(item=>item.id===dutyId);
+    if(!duty || duty.status!=="assigned" || !rosterContains(duty.studentUid) || new Date(duty.startsAt)>new Date()){toast("Attendance can be recorded for a started duty belonging to a student in My Students.","error");return;}
+    const status=button.closest("tr").querySelector("select").value;
+    if(!["Present","Late","Absent"].includes(status)){toast("Select Present, Late, or Absent.","error");return;}
+    const id=duty.id+"_"+duty.studentUid,now=new Date().toISOString();
+    const existing=getAttendance().find(record=>record.id===id);
+    button.disabled=true;
+    try{
+        await db.collection("attendance").doc(id).set({id,dutyId:duty.id,student:duty.student,studentUid:duty.studentUid,instructor:currentUser.name,instructorUid:currentUser.uid,rotation:duty.rotation,hospital:duty.hospital,date:localDateTime(duty.startsAt).slice(0,10),startsAt:duty.startsAt,endsAt:duty.endsAt,status,markedAt:now,time:new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}),createdAt:existing?.createdAt || now});
+        toast("Attendance saved.","success");
+    }catch(error){reportCloudError("record attendance",error);}finally{button.disabled=false;}
 }
-
-
-/* =========================================
-   L. FEEDBACK
-========================================= */
 
 document.querySelectorAll("#feedbackStars .star").forEach(button => {
 
@@ -5634,82 +5337,28 @@ function markNotificationRead(id) {
 ========================================= */
 
 function renderPortfolio() {
-
-    const activities = getActivities().filter(item =>
-        item.student === currentUser.name
-    );
-
-    const evaluations = getEvaluations().filter(item =>
-        item.student === currentUser.name
-    );
-
-    const feedback = getFeedback().filter(item =>
-        item.to === currentUser.name
-    );
-
-    const average = evaluationSummary(evaluations.filter(item => item.released !== false)).overall;
-    document.getElementById("portfolioAverage").textContent = average === null ? "—" : `${average.toFixed(2)}/5`;
-
-    document.getElementById("portfolioActivities").textContent =
-        activities.length;
-
-    document.getElementById("portfolioEvaluations").textContent =
-        evaluations.length;
-
-    document.getElementById("portfolioFeedback").textContent =
-        feedback.length;
-
-    const container = document.getElementById("portfolioList");
-
-    const entries = [
-        ...activities.map(item => ({
-            title: item.title,
-            type: item.type,
-            date: item.submittedAt || item.due,
-            status: item.status
-        })),
-        ...evaluations.filter(item => item.released !== false).map(item => ({
-            title: "Clinical Performance Evaluation",
-            type: item.rotation,
-            date: item.date,
-            status: "Evaluated"
-        })),
-        ...feedback.map(item => ({
-            title: item.subject,
-            type: "Instructor feedback",
-            date: item.date,
-            status: "Received"
-        }))
-    ].sort((a, b) => String(b.date).localeCompare(String(a.date)));
-
-    container.innerHTML = entries.length
-        ? entries.map(item => `
-            <div class="list-row">
-
-                <div class="list-icon green">▤</div>
-
-                <div class="list-main">
-                    <strong>${escapeHTML(item.title)}</strong>
-                    <span>${escapeHTML(item.type)}</span>
-                </div>
-
-                <div class="list-end">
-                    <span class="status">
-                        ${escapeHTML(item.status)}
-                    </span>
-
-                    <small>${escapeHTML(prettyDate(item.date))}</small>
-                </div>
-
-            </div>
-        `).join("")
-        : `<div class="empty-state">Your clinical portfolio is currently empty.</div>`;
+    if(currentUser?.role!=="student")return;
+    const activities=getActivities(),evaluations=getEvaluations(),feedback=getFeedback().filter(item=>item.to===currentUser.name);
+    const average=evaluationSummary(evaluations).overall;
+    document.getElementById("portfolioActivities").textContent=activities.length;
+    document.getElementById("portfolioEvaluations").textContent=evaluations.length;
+    document.getElementById("portfolioAverage").textContent=average===null?"—":average.toFixed(2)+"/5";
+    document.getElementById("portfolioFeedback").textContent=feedback.length;
+    document.querySelectorAll(".portfolio-category").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.category===portfolioCategory)));
+    const titles={activities:"Activity records",evaluations:"Evaluation history",ratings:"Clinical ratings",feedback:"Feedback received"};
+    document.getElementById("portfolioCategoryTitle").textContent=titles[portfolioCategory];
+    const status=document.getElementById("portfolioStatus");status.hidden=portfolioCategory!=="activities";
+    const container=document.getElementById("portfolioList");
+    if(portfolioCategory==="activities"){
+        const records=activities.filter(item=>status.value==="all"||activityDisplayStatus(item)===status.value).sort((a,b)=>String(b.due).localeCompare(String(a.due)));
+        container.innerHTML=records.length?records.map(item=>`<div class="list-row"><div class="list-main"><strong>${escapeHTML(item.title)}</strong><span>${escapeHTML(item.rotation)} · Due ${escapeHTML(prettyDate(item.due))}</span><span>${escapeHTML(activityDisplayStatus(item))}</span></div>${recordButton("activity-details",item.id,"View activity")}</div>`).join(""):'<div class="empty-state">No activities match this category.</div>';
+    }else if(portfolioCategory==="feedback"){
+        container.innerHTML=feedback.length?feedback.slice().reverse().map(item=>`<div class="list-row"><div class="list-main"><strong>${escapeHTML(item.subject)}</strong><span>${escapeHTML(item.from)} · ${escapeHTML(prettyDate(item.date))}</span></div>${recordButton("feedback-details",item.id,"View feedback")}</div>`).join(""):'<div class="empty-state">No feedback received yet.</div>';
+    }else{
+        const summary=portfolioCategory==="ratings"?`<div class="card-heading"><h3>Average across released evaluations</h3><strong>${average===null?"—":average.toFixed(2)+"/5"}</strong></div>${evaluationSummary(evaluations).averages.map(item=>`<div class="criterion-line"><span>${escapeHTML(item.name)}</span><strong>${item.value===null?"Not rated":item.value.toFixed(2)+"/5"}</strong></div>`).join("")}`:"";
+        container.innerHTML=summary+(evaluations.length?evaluations.slice().sort((a,b)=>String(b.dutyDate || b.date).localeCompare(String(a.dutyDate || a.date))).map(item=>`<details class="record-details"><summary>${escapeHTML(item.rotation)} · ${escapeHTML(item.dutyDate?prettyDate(item.dutyDate):"Older evaluation")} · ${evaluationSummary([item]).overall?.toFixed(2) || "—"}/5</summary>${evaluationDetails(item)}${recordButton("evaluation-details",item.id,"View evaluation")}</details>`).join(""):'<div class="empty-state">No released evaluations yet.</div>');
+    }
 }
-
-
-/* =========================================
-   P. PERFORMANCE ANALYZER
-========================================= */
 
 function renderPerformance() {
     const picker = document.getElementById("performanceStudentPicker");
@@ -5720,7 +5369,7 @@ function renderPerformance() {
     );
 
     const studentNames = [...new Set([
-        ...getUsers().filter(user => user.role === "student").map(user => user.name),
+        ...rosterStudents().map(user => user.name),
         ...evaluations.map(item => item.student),
         ...getActivities().map(item => item.student),
         ...getAttendance().map(item => item.student)
@@ -5982,6 +5631,8 @@ function renderAll() {
 
     if (!currentUser) return;
 
+    renderRoster();
+    populateStudentSelects();
     renderDashboard();
     renderDuties();
     renderActivities();
@@ -6018,8 +5669,217 @@ document.querySelectorAll("[data-toggle-password]").forEach(button => {
    U. INITIAL APPLICATION STATE
 ========================================= */
 
+
+const ROTATIONS = ["Internal Medicine", "Surgery", "Pediatrics", "Emergency Department"];
+const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
+const assignmentSelection = { duty: new Set(), activity: new Set() };
+let portfolioCategory = "activities";
+let uploadBusy = false;
+let activeUpload = null;
+let uploadSession = null;
+const uploadProgress = new Map();
+function ownsStudentRecord(record) {
+    return record.studentUid ? record.studentUid === currentUser?.uid : record.student === currentUser?.name;
+}
+function ownsInstructorRecord(record) {
+    return record.instructorUid ? record.instructorUid === currentUser?.uid : (record.instructor || record.createdBy) === currentUser?.name;
+}
+function getRoster() {
+    return loadData(STORAGE.roster, []).filter(item => currentUser?.role === "instructor" && item.instructorUid === currentUser.uid);
+}
+function rosterStudents() {
+    const ids = new Set(getRoster().map(item => item.studentUid));
+    return getUsers().filter(user => user.role === "student" && ids.has(user.id)).sort((a,b) => a.name.localeCompare(b.name));
+}
+function rosterContains(uid) { return getRoster().some(item => item.studentUid === uid); }
+function recordButton(action, id, label, extra = "") {
+    return `<button type="button" class="small-button secondary-button" data-action="${action}" data-id="${escapeHTML(String(id))}" ${extra}>${label}</button>`;
+}
+function actionEvent(event) {
+    const button = event.target.closest("[data-action]");
+    if (!button || button.disabled) return;
+    const id = button.dataset.id;
+    const actions = { "add-student": () => addRosterStudent(id, button), "remove-student": () => removeRosterStudent(id, button),
+        "edit-duty": () => editDuty(id), "save-attendance": () => saveAttendance(id,button), "cancel-duty": () => cancelDuty(id, button),
+        "duty-details": () => showRecord("duty", id), "activity-details": () => showRecord("activity", id),
+        "evaluation-details": () => showRecord("evaluation", id), "feedback-details": () => showRecord("feedback", id),
+        "submit-work": () => submitActivity(id), "open-file": () => openSubmissionFile(id), "download-file": () => openSubmissionFile(id,true) };
+    if (actions[button.dataset.action]) actions[button.dataset.action]();
+}
+function resetWorkspace() {
+    assignmentSelection.duty.clear(); assignmentSelection.activity.clear();
+    portfolioCategory = "activities";
+    document.getElementById("createActivityForm").reset();
+    document.getElementById("evaluationForm").reset();
+    if (activeUpload) activeUpload.abort();
+    uploadProgress.clear();
+    closeRecordDialog(true);
+}
+function initWorkspace() {
+    document.addEventListener("click", actionEvent);
+    document.getElementById("createActivityForm").addEventListener("submit", assignActivities);
+    document.getElementById("evaluationForm").addEventListener("submit", releaseEvaluation);
+    document.getElementById("recordDialog").addEventListener("cancel", event => { if (uploadBusy) event.preventDefault(); });
+}
+async function notifySavedRecords(records, kind) {
+    try {
+        const base=Date.now()*1000+Math.floor(Math.random()*500);
+        const batch=db.batch();let count=0;
+        records.forEach((record,index)=>{
+            const target=kind==="submission" ? getUsers().find(user=>user.id===record.instructorUid || user.name===record.createdBy) : getUsers().find(user=>user.id===record.studentUid || user.name===record.student);
+            if(target?.notificationsEnabled===false)return;
+            const name=kind==="submission"?(record.createdBy || target?.name):record.student;
+            if(!name)return;
+            const title=kind==="duty"?"Hospital duty assigned or updated":kind==="activity"?"New clinical activity assigned":kind==="evaluation"?"Clinical evaluation released":"New student submission";
+            const content=kind==="duty"?`${record.hospital} · ${record.rotation} · ${dutyTime(record.startsAt)}`:kind==="activity"?`${record.title} · Due ${prettyDate(record.due)}`:kind==="evaluation"?`${record.rotation} · Duty date ${prettyDate(record.dutyDate)}`:`${record.student} submitted ${record.title}.`;
+            const id=base+index;
+            batch.set(db.collection("notifications").doc(String(id)),{id,title,content,recipientName:name,recipientEmail:target?.email || "",recipientRole:"",date:new Date().toISOString(),read:false});count++;
+        });
+        if(count)await batch.commit();
+    }catch(error){toast("Your changes were saved, but the notification could not be delivered.","error");console.error("Notification delivery",error);}
+}
+
+async function writeBatchRecords(collection, records) {
+    if (!db || !currentUser) throw new Error("Sign in before saving.");
+    if (!records.length || records.length > 400) throw new Error("Select between 1 and 400 students per assignment.");
+    // Duty rules check both student profiles and roster membership. Small batches
+    // stay within Firestore's document-access limits for rule evaluation.
+    const size = collection === "duties" ? 8 : 400;
+    let written=0;
+    try {
+        for(let offset=0;offset<records.length;offset+=size){
+            const chunk=records.slice(offset,offset+size),batch=db.batch();
+            chunk.forEach(record=>batch.set(db.collection(collection).doc(String(record.id)),record));
+            await batch.commit();written+=chunk.length;
+            const selection=collection==="duties"?assignmentSelection.duty:assignmentSelection.activity;
+            chunk.forEach(record=>selection.delete(record.studentUid));
+        }
+    }catch(error){
+        if(written)throw new Error(`${written} of ${records.length} assignments were saved. The remaining students stay selected; retry to finish. ${error.message || ""}`);
+        throw error;
+    }
+}
+async function addRosterStudent(uid, button) {
+    if (!db || currentUser?.role !== "instructor" || !loaded.roster || rosterContains(uid)) return;
+    const student = getUsers().find(user => user.id === uid && user.role === "student");
+    if (!student) return;
+    button.disabled = true;
+    try {
+        const id = currentUser.uid + "_" + uid;
+        await db.collection("roster").doc(id).set({id, instructorUid:currentUser.uid, studentUid:uid, student:student.name, createdAt:new Date().toISOString()});
+        toast(`${student.name} added to My Students.`, "success");
+    } catch(error) { reportCloudError("add a student", error); }
+    finally { button.disabled = false; }
+}
+async function removeRosterStudent(uid, button) {
+    if (!db || currentUser?.role !== "instructor") return;
+    const item = getRoster().find(record => record.studentUid === uid);
+    if (!item || !confirm(`Remove ${item.student} from My Students? Their history will be preserved.`)) return;
+    button.disabled = true;
+    try {
+        await db.collection("roster").doc(item.id).delete();
+        assignmentSelection.duty.delete(uid); assignmentSelection.activity.delete(uid);
+        toast("Student removed from roster. History preserved.", "success");
+    } catch(error) { reportCloudError("remove a student",error); }
+    finally { button.disabled = false; }
+}
+function renderRoster() {
+    if (currentUser?.role !== "instructor") return;
+    const search = document.getElementById("rosterSearch").value.trim().toLowerCase();
+    const registeredSearch = document.getElementById("registeredSearch").value.trim().toLowerCase();
+    const members = getRoster().filter(item => item.student.toLowerCase().includes(search));
+    document.getElementById("rosterList").innerHTML = members.length ? members.map(item => `<div class="list-row"><div class="list-main"><strong>${escapeHTML(item.student)}</strong></div>${recordButton("remove-student",item.studentUid,"Remove")}</div>`).join("")
+        : `<div class="empty-state">${loaded.roster ? "No students in this roster. Add registered students from the list." : "Loading roster… Check database permissions if this persists."}</div>`;
+    const candidates = getUsers().filter(user => user.role === "student" && !rosterContains(user.id) && `${user.name} ${user.email || ""}`.toLowerCase().includes(registeredSearch));
+    document.getElementById("registeredList").innerHTML = candidates.length ? candidates.map(user => `<div class="list-row"><div class="list-main"><strong>${escapeHTML(user.name)}</strong><span>${escapeHTML(user.email || "")}</span></div>${recordButton("add-student",user.id,"Add", !loaded.roster ? "disabled" : "")}</div>`).join("") : '<div class="empty-state">No other registered students match your search.</div>';
+}
+
+function renderStudentPicker(kind) {
+    const host = document.getElementById(kind === "duty" ? "dutyStudentPicker" : "activityStudentPicker");
+    const search = host.querySelector("input[type=search]")?.value || "";
+    const selected = assignmentSelection[kind];
+    const editing = kind === "duty" && document.getElementById("dutyId").value;
+    const students = rosterStudents();
+    for (const uid of selected) if (!students.some(student => student.id === uid) && !editing) selected.delete(uid);
+    if (editing) {
+        const duty = getDuties().find(item => item.id === editing);
+        host.innerHTML = `<p class="muted">${escapeHTML(duty?.student || "Student")} · Edit this assignment only. To change its student, cancel it and create another assignment.</p>`;
+        return;
+    }
+    host.innerHTML = `<div class="student-picker"><input type="search" placeholder="Search my students" aria-label="Search students to assign"><div class="picker-tools"><button type="button" class="link-button" data-picker="all">Select all</button><button type="button" class="link-button" data-picker="none">Clear selection</button><span class="muted small" data-count></span></div><div class="student-picker-list"></div></div>`;
+    const input = host.querySelector("input"); input.value = search;
+    const refreshList = () => {
+        const query = input.value.trim().toLowerCase();
+        const visible = students.filter(student => `${student.name} ${student.email || ""}`.toLowerCase().includes(query));
+        host.querySelector(".student-picker-list").innerHTML = visible.length ? visible.map(student => `<label class="student-choice"><input type="checkbox" value="${escapeHTML(student.id)}" ${selected.has(student.id) ? "checked" : ""}><span>${escapeHTML(student.name)}</span></label>`).join("") : '<p class="muted small">No students found. Add students in My Students first.</p>';
+        host.querySelector("[data-count]").textContent = `${selected.size} of ${students.length} selected`;
+    };
+    input.addEventListener("input", refreshList);
+    host.querySelector('[data-picker="all"]').addEventListener("click", () => { students.forEach(student => selected.add(student.id)); refreshList(); });
+    host.querySelector('[data-picker="none"]').addEventListener("click", () => { selected.clear(); refreshList(); });
+    host.querySelector(".student-picker-list").addEventListener("change", event => {
+        if (event.target.type !== "checkbox") return;
+        event.target.checked ? selected.add(event.target.value) : selected.delete(event.target.value);
+        host.querySelector("[data-count]").textContent = `${selected.size} of ${students.length} selected`;
+    });
+    refreshList();
+}
+function selectedStudents(kind) {
+    if (!loaded.roster || !loaded.users) throw new Error("Wait for My Students to load. Check Firestore permissions if this persists.");
+    const result = rosterStudents().filter(student => assignmentSelection[kind].has(student.id));
+    if (!result.length) throw new Error("Select at least one student from My Students.");
+    if (result.length > 400) throw new Error("Assign to at most 400 students at a time.");
+    return result;
+}
+function activityDisplayStatus(item) {
+    return !["Submitted","Reviewed"].includes(item.status) && item.due && item.due < todayISO() ? "Missed" : item.status;
+}
+function evaluationDetails(item) {
+    const summary = evaluationSummary([item]);
+    return `<p><strong>${escapeHTML(item.student)}</strong> · ${escapeHTML(item.rotation)}</p><p>Duty date: ${escapeHTML(item.dutyDate ? prettyDate(item.dutyDate) : "Not recorded (older evaluation)")}<br>Recorded: ${escapeHTML(item.recordedAt ? dutyTime(item.recordedAt) : prettyDate(item.date))}<br>Instructor: ${escapeHTML(item.instructor || "—")}</p>${criteria.map(name => { const value = item.scores?.[name]; return `<div class="criterion-line"><span>${escapeHTML(name)}</span><strong>${value == null ? "Not rated" : escapeHTML(value) + "/5"}</strong></div>`; }).join("")}<p><strong>Average: ${summary.overall === null ? "—" : summary.overall.toFixed(2) + "/5"}</strong></p><p style="white-space:pre-wrap">${escapeHTML(item.comment || "No comments recorded.")}</p>`;
+}
+function openRecordDialog(title, content) {
+    document.getElementById("recordDialogTitle").textContent = title;
+    document.getElementById("recordDialogContent").innerHTML = content;
+    const dialog = document.getElementById("recordDialog");
+    if (!dialog.open) dialog.showModal();
+}
+function closeRecordDialog(force = false) {
+    if (uploadBusy && !force) { toast("Wait for the upload to finish, or cancel the upload first.","error"); return; }
+    const dialog = document.getElementById("recordDialog");
+    if (dialog.open) dialog.close();
+}
+function showRecord(kind,id) {
+    if (uploadBusy) return;
+    const sources = {duty:getDuties,activity:getActivities,evaluation:getEvaluations,feedback:getFeedback};
+    const item = sources[kind]?.().find(record => String(record.id) === String(id));
+    if (!item) { toast("This record is unavailable for your account.","error"); return; }
+    if (kind === "evaluation") openRecordDialog("Evaluation details",evaluationDetails(item));
+    if (kind === "duty") openRecordDialog("Hospital duty",dutyDetails(item));
+    if (kind === "feedback") openRecordDialog(item.subject || "Feedback",`<p>From: ${escapeHTML(item.from)}<br>To: ${escapeHTML(item.to)}<br>Date: ${escapeHTML(prettyDate(item.date))}</p>${item.rating > 0 ? `<p>Rating: ${escapeHTML(item.rating)}/5</p>` : ""}<p style="white-space:pre-wrap">${escapeHTML(item.comment)}</p>`);
+    if (kind === "activity") openRecordDialog(item.title,`<p>${escapeHTML(item.type)} · ${escapeHTML(item.rotation)}</p><p><strong>${escapeHTML(activityDisplayStatus(item))}</strong> · Due ${escapeHTML(prettyDate(item.due))}</p><p style="white-space:pre-wrap">${escapeHTML(item.description || "")}</p><p>Student: ${escapeHTML(item.student)}<br>Assigned by: ${escapeHTML(item.createdBy || "—")}</p>${item.submittedAt ? `<p>Submitted: ${escapeHTML(prettyDate(item.submittedAt))}</p>` : ""}<p style="white-space:pre-wrap">${escapeHTML(item.notes || "")}</p>${item.fileName ? `<p>${escapeHTML(item.fileName)}</p><div class="duty-actions">${recordButton("open-file",item.id,"Open file")}${recordButton("download-file",item.id,"Download")}</div>` : ""}${item.instructorComment ? `<p><strong>Instructor feedback</strong><br>${escapeHTML(item.instructorComment)}</p>` : ""}${currentUser.role === "student" && item.status !== "Reviewed" ? `<div class="duty-actions">${recordButton("submit-work",item.id,"Submit / update work")}</div>` : ""}`);
+}
+function populateEvaluationDuties() {
+    if (currentUser?.role !== "instructor") return;
+    const selected = document.getElementById("evaluationStudent").value;
+    const select = document.getElementById("evaluationDuty"), previous = select.value;
+    const duties = getDuties().filter(duty => duty.studentUid === selected && duty.status === "assigned" && new Date(duty.startsAt) <= new Date());
+    select.innerHTML = '<option value="">Historical duty (enter date below)</option>' + duties.sort((a,b) => new Date(b.startsAt)-new Date(a.startsAt)).map(duty => `<option value="${escapeHTML(duty.id)}">${escapeHTML(duty.hospital)} · ${escapeHTML(dutyTime(duty.startsAt))}</option>`).join("");
+    if (duties.some(duty => duty.id === previous)) select.value = previous;
+    selectEvaluationDuty();
+}
+function selectEvaluationDuty() {
+    const duty = getDuties().find(item => item.id === document.getElementById("evaluationDuty").value);
+    const date = document.getElementById("evaluationDutyDate");
+    date.max = todayISO(); date.readOnly = !!duty;
+    document.getElementById("evaluationRotation").disabled = !!duty;
+    if (duty) { date.value = localDateTime(duty.startsAt).slice(0,10); document.getElementById("evaluationRotation").value = duty.rotation; }
+}
+function setPortfolioCategory(category) { portfolioCategory = category; renderPortfolio(); }
+
 initDutyForm();
-document.getElementById("attendanceDate").value = todayISO();
+document.getElementById("attendanceDate").value = "";
+initWorkspace();
 
 document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
