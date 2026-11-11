@@ -865,7 +865,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     width: 92px;
     height: 92px;
     border-radius: 50%;
-    background: conic-gradient(var(--aqua) 0 88%, #e8e7f8 88% 100%);
+    background: conic-gradient(#e8e7f8 0% 100%);
     display: grid;
     place-items: center;
     position: relative;
@@ -2017,10 +2017,10 @@ button, input, select, textarea {
         <div class="sidebar-bottom">
 
             <div class="user-profile">
-                <div class="avatar" id="sidebarAvatar">AL</div>
+                <div class="avatar" id="sidebarAvatar">—</div>
 
                 <div style="min-width:0">
-                    <div class="user-name" id="sidebarName">Nove Princess Balo</div>
+                    <div class="user-name" id="sidebarName"></div>
                     <div class="user-role" id="sidebarRole">Student</div>
                 </div>
             </div>
@@ -2054,20 +2054,20 @@ button, input, select, textarea {
             </div>
 
             <div class="topbar-right">
-                <span class="live-status" title="Changes sync in real time through Firebase">Live sync</span>
+                <span id="cloudStatus" class="small muted" role="status">Connecting…</span>
 
                 <button class="icon-button"
                         onclick="navigate('notifications')"
                         title="Notifications">
                     ♧
-                    <span class="notification-dot"></span>
+                    <span class="notification-dot" hidden></span>
                 </button>
 
                 <div class="topbar-user">
-                    <div class="avatar" id="topbarAvatar">AL</div>
+                    <div class="avatar" id="topbarAvatar">—</div>
                     <div>
                         <div class="topbar-user-name" id="topbarName">
-                            Cielo Conol
+                            
                         </div>
                         <div class="topbar-user-role" id="topbarRole">
                             Student
@@ -2098,7 +2098,7 @@ button, input, select, textarea {
                             STUDENT OVERVIEW
                         </div>
 
-                        <h1 id="studentGreeting">Good morning, Angela.</h1>
+                        <h1 id="studentGreeting">Welcome.</h1>
 
                         <p>
                             Here's how your clinical journey is progressing.
@@ -2120,7 +2120,7 @@ button, input, select, textarea {
                         <div class="card-heading">
                             <div>
                                 <div class="eyebrow">CURRENT PERFORMANCE</div>
-                                <h3>Internal Medicine</h3>
+                                <h3 id="studentPerformanceHeading">Recorded evaluations</h3>
                             </div>
 
                             <button class="link-button"
@@ -2133,7 +2133,7 @@ button, input, select, textarea {
 
                             <div class="donut">
                                 <div class="donut-inner">
-                                    <strong id="studentScore">88%</strong>
+                                    <strong id="studentScore">—</strong>
                                     <span>OVERALL</span>
                                 </div>
                             </div>
@@ -2148,17 +2148,17 @@ button, input, select, textarea {
 
                             <div class="score-box">
                                 <span>Clinical skills</span>
-                                <strong>4.4 / 5</strong>
+                                <strong data-dashboard-criterion="Clinical skills" data-dashboard-role="student">—</strong>
                             </div>
 
                             <div class="score-box">
                                 <span>Communication</span>
-                                <strong>4.2 / 5</strong>
+                                <strong data-dashboard-criterion="Communication" data-dashboard-role="student">—</strong>
                             </div>
 
                             <div class="score-box">
                                 <span>Professionalism</span>
-                                <strong>4.6 / 5</strong>
+                                <strong data-dashboard-criterion="Professionalism" data-dashboard-role="student">—</strong>
                             </div>
 
                         </div>
@@ -2166,48 +2166,8 @@ button, input, select, textarea {
                     </div>
 
 
-                    <div class="duty-card">
-
-                        <div style="display:flex;justify-content:space-between;gap:10px">
-                            <div class="eyebrow" style="color:#d1c9f3">
-                                NEXT HOSPITAL DUTY
-                            </div>
-
-                            <span class="status"
-                                  style="background:rgba(45,198,181,.15);color:#66e5d7">
-                                On schedule
-                            </span>
-                        </div>
-
-                        <h3 id="nextDutyWard">Medical Ward</h3>
-
-                        <div class="duty-time" id="nextDutyTime">07:00 <span style="font-size:12px">AM</span></div>
-
-                        <p id="nextDutyDate">May 22 · St. Luke's, Ward 4B</p>
-
-                        <div class="divider"
-                             style="background:rgba(255,255,255,.15);margin:20px 0"></div>
-
-                        <div style="display:flex;align-items:center;gap:10px">
-                            <div class="avatar"
-                                 style="background:#493a87;color:white">
-                                DS
-                            </div>
-
-                            <div>
-                                <div style="font-size:9px;color:#cfc6ef">
-                                    Clinical Instructor
-                                </div>
-                                <strong style="font-size:11px">
-                                    Ara Claire Orion, RN
-                                </strong>
-                            </div>
-                        </div>
-
-                    </div>
-
+                    <div class="duty-card" id="studentDutyCard"><div class="eyebrow" style="color:#d1c9f3">NEXT HOSPITAL DUTY</div><p>No upcoming duty assigned.</p></div>
                 </div>
-
 
                 <div class="grid two-column">
 
@@ -2238,7 +2198,7 @@ button, input, select, textarea {
                                 <h3>Feedback & announcements</h3>
                             </div>
 
-                            <span style="color:var(--aqua)">●</span>
+                            
                         </div>
 
                         <div id="studentLatestFeedback"></div>
@@ -2263,9 +2223,7 @@ button, input, select, textarea {
                             CLINICAL OVERVIEW
                         </div>
 
-                        <h1 id="instructorGreeting">
-                            Good morning, Ara Claire Orion, RN.
-                        </h1>
+                        <h1 id="instructorGreeting">Welcome.</h1>
 
                         <p>Here's what needs your attention today.</p>
                     </div>
@@ -2285,7 +2243,7 @@ button, input, select, textarea {
                         <div class="card-heading">
                             <div>
                                 <div class="eyebrow">CURRENT PERFORMANCE</div>
-                                <h3>Internal Medicine</h3>
+                                <h3 id="instructorPerformanceHeading">Recorded evaluations</h3>
                             </div>
 
                             <button class="link-button"
@@ -2298,7 +2256,7 @@ button, input, select, textarea {
 
                             <div class="donut">
                                 <div class="donut-inner">
-                                    <strong id="instructorScore">88%</strong>
+                                    <strong id="instructorScore">—</strong>
                                     <span>OVERALL</span>
                                 </div>
                             </div>
@@ -2313,17 +2271,17 @@ button, input, select, textarea {
 
                             <div class="score-box">
                                 <span>Clinical skills</span>
-                                <strong>4.4 / 5</strong>
+                                <strong data-dashboard-criterion="Clinical skills" data-dashboard-role="instructor">—</strong>
                             </div>
 
                             <div class="score-box">
                                 <span>Communication</span>
-                                <strong>4.2 / 5</strong>
+                                <strong data-dashboard-criterion="Communication" data-dashboard-role="instructor">—</strong>
                             </div>
 
                             <div class="score-box">
                                 <span>Professionalism</span>
-                                <strong>4.6 / 5</strong>
+                                <strong data-dashboard-criterion="Professionalism" data-dashboard-role="instructor">—</strong>
                             </div>
 
                         </div>
@@ -2331,41 +2289,8 @@ button, input, select, textarea {
                     </div>
 
 
-                    <div class="duty-card">
-
-                        <div class="eyebrow" style="color:#d1c9f3">
-                            NEXT HOSPITAL DUTY
-                        </div>
-
-                        <h3>Medical Ward</h3>
-
-                        <div class="duty-time">07:00 <span style="font-size:12px">AM</span></div>
-
-                        <p>May 22 · St. Luke's, Ward 4B</p>
-
-                        <div class="divider"
-                             style="background:rgba(255,255,255,.15);margin:20px 0"></div>
-
-                        <div style="display:flex;align-items:center;gap:10px">
-                            <div class="avatar"
-                                 style="background:#493a87;color:white">
-                                DS
-                            </div>
-
-                            <div>
-                                <div style="font-size:9px;color:#cfc6ef">
-                                    Signed in as
-                                </div>
-                                <strong style="font-size:11px">
-                                    Clinical Instructor
-                                </strong>
-                            </div>
-                        </div>
-
-                    </div>
-
+                    <div class="duty-card" id="instructorDutyCard"><div class="eyebrow" style="color:#d1c9f3">NEXT HOSPITAL DUTY</div><p>No upcoming duty assigned.</p></div>
                 </div>
-
 
                 <div class="grid stats-grid">
 
@@ -2374,15 +2299,15 @@ button, input, select, textarea {
                             <div class="stat-icon">♙</div>
                             <span class="stat-change">Active</span>
                         </div>
-                        <div class="stat-number" id="totalStudents">24</div>
-                        <div class="stat-label">Total students</div>
+                        <div class="stat-number" id="totalStudents">0</div>
+                        <div class="stat-label">Students assigned to you</div>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-top">
                             <div class="stat-icon aqua">▤</div>
                         </div>
-                        <div class="stat-number" id="pendingSubmissions">3</div>
+                        <div class="stat-number" id="pendingSubmissions">0</div>
                         <div class="stat-label">Pending submissions</div>
                     </div>
 
@@ -2390,7 +2315,7 @@ button, input, select, textarea {
                         <div class="stat-top">
                             <div class="stat-icon green">✓</div>
                         </div>
-                        <div class="stat-number" id="pendingEvaluations">2</div>
+                        <div class="stat-number" id="pendingEvaluations">0</div>
                         <div class="stat-label">Pending evaluations</div>
                     </div>
 
@@ -2398,7 +2323,7 @@ button, input, select, textarea {
                         <div class="stat-top">
                             <div class="stat-icon orange">◷</div>
                         </div>
-                        <div class="stat-number" id="todayActivities">2</div>
+                        <div class="stat-number" id="todayActivities">0</div>
                         <div class="stat-label">Today's activities</div>
                     </div>
 
@@ -2523,13 +2448,7 @@ button, input, select, textarea {
                         <div class="grid two-column">
                             <div class="form-group">
                                 <label for="newActivityStudent">Assign to student</label>
-                                <select id="newActivityStudent" required>
-                                    <option value="Nove Princess Balo">Nove Princess Balo</option>
-                                    <option value="Cielo Venice Conol">Cielo Venice Conol</option>
-                                    <option value="Alliah Vienne Aba-a">Alliah Vienne Aba-a</option>
-                                    <option value="Francis Gabrielle Ricablanca">Francis Gabrielle Ricablanca</option>
-                                    <option value="Azariah Joshua Farmer">Azariah Joshua Farmer</option>
-                                </select>
+                                <select id="newActivityStudent" required><option value="">No registered students yet</option></select>
                             </div>
                             <div class="form-group">
                                 <label for="newActivityTitle">Activity title</label>
@@ -2645,13 +2564,7 @@ button, input, select, textarea {
                     <form id="evaluationForm">
                         <div class="form-group">
                             <label for="evaluationStudent">Student</label>
-                            <select id="evaluationStudent" required>
-                                <option value="Nove Princess Balo">Nove Princess Balo</option>
-                                <option value="Cielo Venice Conol">Cielo Venice Conol</option>
-                                <option value="Alliah Vienne Aba-a">Alliah Vienne Aba-a</option>
-                                <option value="Francis Gabrielle Ricablanca">Francis Gabrielle Ricablanca</option>
-                                <option value="Azariah Joshua Farmer">Azariah Joshua Farmer</option>
-                            </select>
+                            <select id="evaluationStudent" required><option value="">No registered students yet</option></select>
                         </div>
 
                         <div class="form-group">
@@ -2713,13 +2626,7 @@ button, input, select, textarea {
                         <form id="feedbackForm">
                             <div class="form-group" id="feedbackStudentGroup">
                                 <label for="feedbackStudent">Student</label>
-                                <select id="feedbackStudent">
-                                    <option value="Nove Princess Balo">Nove Princess Balo</option>
-                                    <option value="Cielo Venice Conol">Cielo Venice Conol</option>
-                                    <option value="Alliah Vienne Aba-a">Alliah Vienne Aba-a</option>
-                                    <option value="Francis Gabrielle Ricablanca">Francis Gabrielle Ricablanca</option>
-                                    <option value="Azariah Joshua Farmer">Azariah Joshua Farmer</option>
-                                </select>
+                                <select id="feedbackStudent"><option value="">No registered students yet</option></select>
                             </div>
 
                             <div class="form-group">
@@ -2766,6 +2673,29 @@ button, input, select, textarea {
             <!-- =========================================
                  ATTENDANCE
             ========================================= -->
+
+            <section class="page" id="page-duties">
+                <div class="page-heading"><div><div class="eyebrow">CLINICAL DUTY MANAGEMENT</div><h1>Hospital Duties</h1><p>View assigned shifts and their hospital, ward, rotation, and instructions. Times use your device's local time zone.</p></div></div>
+                <div class="card" id="dutyAssignmentCard" style="margin-bottom:18px;display:none">
+                    <h3 style="margin-bottom:18px">Assign hospital duty</h3>
+                    <form id="dutyForm">
+                        <input id="dutyId" type="hidden">
+                        <div class="form-grid">
+                            <div class="form-group"><label for="dutyStudent">Student</label><select id="dutyStudent" required></select></div>
+                            <div class="form-group"><label for="dutyRotation">Rotation</label><input id="dutyRotation" required maxlength="120"></div>
+                            <div class="form-group"><label for="dutyHospital">Hospital</label><input id="dutyHospital" required maxlength="160"></div>
+                            <div class="form-group"><label for="dutyWard">Ward / unit</label><input id="dutyWard" required maxlength="120"></div>
+                            <div class="form-group"><label for="dutyStart">Shift starts</label><input id="dutyStart" type="datetime-local" required></div>
+                            <div class="form-group"><label for="dutyEnd">Shift ends</label><input id="dutyEnd" type="datetime-local" required></div>
+                            <div class="form-group full"><label for="dutyInstructions">Instructions</label><textarea id="dutyInstructions" maxlength="3000"></textarea></div>
+                        </div>
+                        <button class="primary-button" id="dutySave" type="submit">Assign duty</button>
+                        <button class="small-button secondary-button" id="dutyReset" type="button">Clear form</button>
+                        <p id="dutyFormStatus" role="status" style="margin-top:12px"></p>
+                    </form>
+                </div>
+                <div class="card"><div class="card-heading"><h3>Duty assignments</h3></div><div id="dutyList"></div></div>
+            </section>
 
             <section class="page" id="page-attendance">
 
@@ -2868,7 +2798,7 @@ button, input, select, textarea {
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-number">4.4/5</div>
+                        <div class="stat-number" id="portfolioAverage">—</div>
                         <div class="stat-label">Average clinical rating</div>
                     </div>
 
@@ -3204,6 +3134,7 @@ button, input, select, textarea {
                             <div class="form-group">
                                 <label for="settingsRotation">Current rotation</label>
                                 <select id="settingsRotation">
+                                    <option value="">No rotation selected</option>
                                     <option>Internal Medicine</option>
                                     <option>Surgery</option>
                                     <option>Pediatrics</option>
@@ -3277,6 +3208,217 @@ button, input, select, textarea {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
+/* Database-backed dashboard summaries and hospital duty assignments. */
+function getDuties() {
+    return loadData(STORAGE.duties, []).filter(duty => currentUser &&
+        (currentUser.role === "instructor" ? duty.instructorUid === currentUser.uid : duty.studentUid === currentUser.uid));
+}
+
+function evaluationSummary(records) {
+    const averages = criteria.map(name => {
+        const values = records.map(record => Number(record.scores?.[name]))
+            .filter(value => Number.isFinite(value) && value >= 1 && value <= 5);
+        return { name, value: values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null };
+    });
+    const available = averages.filter(item => item.value !== null);
+    return { averages, overall: available.length ? available.reduce((sum, item) => sum + item.value, 0) / available.length : null };
+}
+
+function renderRealDashboard() {
+    const role = currentUser.role;
+    const records = getEvaluations().filter(record => role === "student"
+        ? record.student === currentUser.name && record.released !== false
+        : (record.instructorUid ? record.instructorUid === currentUser.uid : record.instructor === currentUser.name));
+    const summary = evaluationSummary(records);
+    const score = document.getElementById(role + "Score");
+    const percent = summary.overall === null ? null : Math.round(summary.overall / 5 * 100);
+    score.textContent = percent === null ? "—" : percent + "%";
+    score.closest(".donut").style.background = percent === null
+        ? "conic-gradient(#e8e7f8 0% 100%)"
+        : `conic-gradient(var(--aqua) 0 ${percent}%, #e8e7f8 ${percent}% 100%)`;
+    document.getElementById(role + "PerformanceHeading").textContent = role === "student"
+        ? "Your recorded evaluations" : "Evaluations you recorded";
+    document.querySelectorAll(`[data-dashboard-role="${role}"]`).forEach(element => {
+        const value = summary.averages.find(item => item.name === element.dataset.dashboardCriterion)?.value;
+        element.textContent = value == null ? "—" : `${value.toFixed(2)} / 5`;
+    });
+    const trend = records.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)))
+        .filter(record => evaluationSummary([record]).overall !== null).slice(-6);
+    if (trend.length) {
+        makeChart(role + "Chart", trend.map(record => evaluationSummary([record]).overall / 5 * 100), trend.map(record => escapeHTML(prettyDate(record.date))));
+    } else {
+        document.getElementById(role + "Chart").innerHTML = '<div class="empty-state">No recorded evaluations yet.</div>';
+    }
+    renderNextDuty();
+}
+
+function dutyTime(value) {
+    const date = new Date(value);
+    return Number.isFinite(date.getTime()) ? date.toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "—";
+}
+
+function upcomingDuties(duties, now = Date.now()) {
+    return duties.filter(duty => duty.status === "assigned" && new Date(duty.endsAt).getTime() > now)
+        .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
+}
+
+function dutyDetails(duty) {
+    return `<h3>${escapeHTML(duty.ward)}</h3>
+        <p><strong>${escapeHTML(duty.hospital)}</strong> · ${escapeHTML(duty.rotation)}</p>
+        <p>${escapeHTML(dutyTime(duty.startsAt))} – ${escapeHTML(dutyTime(duty.endsAt))}</p>
+        <p>Student: ${escapeHTML(duty.student)}<br>Clinical instructor: ${escapeHTML(duty.instructor)}</p>
+        ${duty.instructions ? `<p style="white-space:pre-wrap">${escapeHTML(duty.instructions)}</p>` : ""}`;
+}
+
+function renderNextDuty() {
+    const duty = upcomingDuties(getDuties())[0];
+    const card = document.getElementById(currentUser.role + "DutyCard");
+    card.innerHTML = '<div class="eyebrow" style="color:#d1c9f3">NEXT HOSPITAL DUTY</div>' +
+        (duty ? `<p>${new Date(duty.startsAt).getTime() <= Date.now() ? "In progress" : "Upcoming"}</p>${dutyDetails(duty)}`
+            : `<p>${loaded.duties ? "No upcoming duty assigned." : "Duty assignments have not loaded yet."}</p>`) +
+        '<button class="small-button secondary-button" onclick="navigate(\'duties\')">View hospital duties</button>';
+}
+
+function renderDuties() {
+    if (!currentUser) return;
+    const instructor = currentUser.role === "instructor";
+    document.getElementById("dutyAssignmentCard").style.display = instructor ? "block" : "none";
+    if (instructor) {
+        const select = document.getElementById("dutyStudent");
+        const previous = select.value;
+        const students = getUsers().filter(user => user.role === "student").sort((a, b) => a.name.localeCompare(b.name));
+        select.innerHTML = '<option value="">Select a registered student</option>' + students.map(student =>
+            `<option value="${escapeHTML(student.id)}">${escapeHTML(student.name)}</option>`).join("");
+        if (students.some(student => student.id === previous)) select.value = previous;
+    }
+    const duties = getDuties().slice().sort((a, b) => new Date(b.startsAt) - new Date(a.startsAt));
+    const list = document.getElementById("dutyList");
+    list.replaceChildren();
+    if (!duties.length) {
+        list.innerHTML = `<div class="empty-state">${loaded.duties ? "No hospital duties assigned yet." : "Duty assignments have not loaded yet. Check your connection and database permissions if this persists."}</div>`;
+    }
+    duties.forEach(duty => {
+        const row = document.createElement("div");
+        row.className = "stat-card";
+        row.style.marginBottom = "12px";
+        const status = duty.status === "cancelled" ? "Cancelled" : new Date(duty.endsAt) <= new Date()
+            ? "Completed" : new Date(duty.startsAt) <= new Date() ? "In progress" : "Upcoming";
+        row.innerHTML = `<span class="status">${status}</span>${dutyDetails(duty)}`;
+        if (instructor && duty.status === "assigned" && new Date(duty.endsAt) > new Date()) {
+            const edit = document.createElement("button");
+            edit.className = "small-button secondary-button";
+            edit.textContent = "Edit assignment";
+            edit.addEventListener("click", () => editDuty(duty.id));
+            if (new Date(duty.startsAt) > new Date()) row.appendChild(edit);
+            const cancel = document.createElement("button");
+            cancel.className = "small-button secondary-button";
+            cancel.textContent = "Cancel assignment";
+            cancel.addEventListener("click", () => cancelDuty(duty.id, cancel));
+            row.appendChild(cancel);
+        }
+        list.appendChild(row);
+    });
+}
+
+function localDateTime(value) {
+    const date = new Date(value);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function resetDutyForm() {
+    document.getElementById("dutyForm").reset();
+    document.getElementById("dutyId").value = "";
+    document.getElementById("dutySave").textContent = "Assign duty";
+    document.getElementById("dutyFormStatus").textContent = "";
+}
+
+function editDuty(id) {
+    const duty = getDuties().find(item => item.id === id);
+    if (currentUser?.role !== "instructor" || !duty || duty.status !== "assigned" || new Date(duty.startsAt) <= new Date()) return;
+    const values = { dutyId: duty.id, dutyStudent: duty.studentUid, dutyRotation: duty.rotation,
+        dutyHospital: duty.hospital, dutyWard: duty.ward, dutyStart: localDateTime(duty.startsAt),
+        dutyEnd: localDateTime(duty.endsAt), dutyInstructions: duty.instructions };
+    Object.entries(values).forEach(([key, value]) => { document.getElementById(key).value = value || ""; });
+    // Keep the recipient fixed when editing; use a new assignment to change students.
+    document.getElementById("dutySave").textContent = "Save duty changes";
+    document.getElementById("dutyAssignmentCard").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function validateDuty(values, duties, now = Date.now()) {
+    const start = new Date(values.startsAt).getTime(), end = new Date(values.endsAt).getTime();
+    if (!values.studentUid || !values.hospital.trim() || !values.ward.trim() || !values.rotation.trim()) throw new Error("Complete all required duty details.");
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) throw new Error("The shift end must be after its start. For overnight duties, choose the following end date.");
+    if (start < now) throw new Error("Choose a shift start in the future.");
+    if (duties.some(duty => duty.id !== values.id && duty.studentUid === values.studentUid && duty.status === "assigned" &&
+        new Date(duty.startsAt).getTime() < end && new Date(duty.endsAt).getTime() > start)) throw new Error("This student already has an overlapping duty assigned by you.");
+}
+
+async function saveDuty(event) {
+    event.preventDefault();
+    if (!db || currentUser?.role !== "instructor") return;
+    const button = document.getElementById("dutySave");
+    const status = document.getElementById("dutyFormStatus");
+    button.disabled = true;
+    status.textContent = "Saving assignment…";
+    try {
+        if (!loaded.duties || !loaded.users) throw new Error("Wait for students and duty assignments to load before saving.");
+        const field = id => document.getElementById(id).value.trim();
+        const id = field("dutyId");
+        const original = id ? getDuties().find(duty => duty.id === id) : null;
+        if (id && (!original || original.status !== "assigned")) throw new Error("This assignment is no longer available to edit.");
+        const student = getUsers().find(user => user.id === field("dutyStudent") && user.role === "student");
+        if (!student) throw new Error("Select a registered student.");
+        if (original && original.studentUid !== student.id) throw new Error("Cancel this duty and create a new assignment to change its student.");
+        const values = { id, studentUid: student.id, hospital: field("dutyHospital"), ward: field("dutyWard"),
+            rotation: field("dutyRotation"), startsAt: field("dutyStart"), endsAt: field("dutyEnd") };
+        validateDuty(values, getDuties());
+        const reference = id ? db.collection("duties").doc(id) : db.collection("duties").doc();
+        const record = { ...values, id: reference.id, student: student.name, instructorUid: currentUser.uid,
+            instructor: currentUser.name, startsAt: new Date(values.startsAt).toISOString(), endsAt: new Date(values.endsAt).toISOString(),
+            instructions: field("dutyInstructions"), status: "assigned", createdAt: original?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+        // Await cloud persistence; a denied write must never appear successful.
+        await reference.set(record);
+        resetDutyForm();
+        status.textContent = id ? "Duty changes saved." : "Duty assigned successfully.";
+        toast(status.textContent, "success");
+    } catch (error) {
+        status.textContent = error.message || "The duty could not be saved.";
+        toast(status.textContent, "error");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+async function cancelDuty(id, button) {
+    const duty = getDuties().find(item => item.id === id);
+    if (!db || currentUser?.role !== "instructor" || !duty) return;
+    if (!confirm(`Cancel the hospital duty assigned to ${duty.student}?`)) return;
+    button.disabled = true;
+    try {
+        await db.collection("duties").doc(id).update({ status: "cancelled", updatedAt: new Date().toISOString() });
+        if (document.getElementById("dutyId").value === id) resetDutyForm();
+        toast("Duty cancelled.", "success");
+    } catch (error) {
+        toast(error.message || "The duty could not be cancelled.", "error");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+function initDutyForm() {
+    document.getElementById("dutyForm").addEventListener("submit", saveDuty);
+    document.getElementById("dutyReset").addEventListener("click", resetDutyForm);
+    // Advance the next-duty card when a shift ends, even without a database update.
+    setInterval(() => { if (currentUser) { renderNextDuty(); renderDuties(); } }, 60000);
+}
+
+function updateCloudStatus(failed = false) {
+    const status = document.getElementById("cloudStatus");
+    const required = Object.values(STORAGE);
+    status.textContent = failed ? "Some records could not load" : required.every(key => loaded[key]) ? "Live sync" : "Loading records…";
+}
+
+
 
 /* =========================================
    A. FIREBASE SETUP AND DATA LAYER
@@ -3286,7 +3428,7 @@ button, input, select, textarea {
    STEP 1 - PASTE YOUR FIREBASE CONFIGURATION HERE
    Firebase Console > Project settings > General > Your apps > Web app
    > SDK setup and configuration > "Config".
-   Copy the values exactly as the console shows them (see FIREBASE_SETUP.md).
+   Copy the values exactly as the console shows them (check firebaseConfig in this HTML file).
 */
 const firebaseConfig = {
     apiKey: "AIzaSyBh0B93H1Wb3h0YpOorNLxIafkyyWkztTo",
@@ -3301,9 +3443,9 @@ const firebaseConfig = {
 /*
    STEP 2 - PASTE YOUR RAILWAY FILE SERVER URL HERE (used for submission file uploads)
    Example: "https://clinsync-files-production.up.railway.app"   (no trailing slash)
-   See RAILWAY_SETUP.md.
+   The file server must already be deployed separately; its source is not included here.
 */
-const FILE_API_URL = "clinsync-production.up.railway.app";
+const FILE_API_URL = "https://clinsync-production.up.railway.app";
 
 const FIREBASE_READY =
     typeof firebase !== "undefined" &&
@@ -3328,7 +3470,8 @@ const STORAGE = {
     feedback: "feedback",
     announcements: "announcements",
     notifications: "notifications",
-    attendance: "attendance"
+    attendance: "attendance",
+    duties: "duties"
 };
 
 /*
@@ -3414,6 +3557,8 @@ function stopListeners() {
     Object.values(STORAGE).forEach(name => { cache[name] = []; });
 
     clearTimeout(renderTimer);
+    resetDutyForm();
+    updateCloudStatus();
     listenErrorShown = false;
 }
 
@@ -3448,17 +3593,21 @@ function listen(key, query, sourceName = "main") {
 
         rebuildCache(key);
         loaded[key] = true;
+        updateCloudStatus();
 
         scheduleRender();
 
     }, error => {
         console.error("Listener error for " + key, error);
+        loaded[key] = false;
+        updateCloudStatus(true);
+        scheduleRender();
 
         if (!listenErrorShown && currentUser) {
             listenErrorShown = true;
             toast(
                 error.code === "permission-denied"
-                    ? "Firebase blocked loading " + key + ". Publish the security rules from firestore.rules."
+                    ? "Firebase blocked loading " + key + ". Check the published Firestore security rules for this collection and your account role."
                     : "Could not load " + key + ": " + error.message,
                 "error"
             );
@@ -3486,6 +3635,7 @@ function startListeners() {
         listen("feedback", col("feedback"));
         listen("notifications", col("notifications"));
         listen("attendance", col("attendance"));
+        listen("duties", col("duties").where("instructorUid", "==", me.uid));
 
     } else {
 
@@ -3494,6 +3644,7 @@ function startListeners() {
         listen("activities", col("activities").where("student", "==", me.name));
         listen("evaluations", col("evaluations").where("student", "==", me.name));
         listen("attendance", col("attendance").where("student", "==", me.name));
+        listen("duties", col("duties").where("studentUid", "==", me.uid));
         listen("feedback", col("feedback").where("to", "==", me.name), "to");
         listen("feedback", col("feedback").where("from", "==", me.name), "from");
         listen("notifications", col("notifications").where("recipientName", "==", me.name), "name");
@@ -3569,7 +3720,7 @@ function ensureTodayAttendance() {
                 id,
                 student: user.name,
                 studentUid: user.id,
-                rotation: user.rotation || "Internal Medicine",
+                rotation: user.rotation || "",
                 date: today,
                 status: "Pending",
                 time: "—"
@@ -3587,7 +3738,7 @@ function ensureTodayAttendance() {
 
 function fileApiBase() {
     if (/^PASTE_/.test(FILE_API_URL)) {
-        throw new Error("The file server is not set up yet. Paste your Railway URL into FILE_API_URL (see RAILWAY_SETUP.md).");
+        throw new Error("The file server is not set up yet. Paste your Railway URL into FILE_API_URL (check FILE_API_URL in this HTML file).");
     }
     return FILE_API_URL.replace(/\/+$/, "");
 }
@@ -3749,6 +3900,7 @@ const navigationItems = [
     { id: "submissions", icon: "▤", label: "Submissions", roles: ["instructor"] },
     { id: "evaluations", icon: "▥", label: "Evaluations", roles: ["student", "instructor"] },
     { id: "feedback", icon: "✉", label: "Feedback", roles: ["student", "instructor"] },
+    { id: "duties", icon: "▣", label: "Hospital Duties", roles: ["student", "instructor"] },
     { id: "attendance", icon: "▣", label: "Attendance", roles: ["student", "instructor"] },
     { id: "portfolio", icon: "▢", label: "Portfolio", roles: ["student"] },
     { id: "performance", icon: "▥", label: "Performance Analyzer", roles: ["student", "instructor"] },
@@ -3801,7 +3953,7 @@ function showAuthMessage(id, text) {
 function showSetupMessage(id) {
     showAuthMessage(
         id,
-        "Firebase is not configured yet. Open this file, paste your Firebase web-app settings into firebaseConfig, and reload (see FIREBASE_SETUP.md)."
+        "Firebase is not configured yet. Open this file, paste your Firebase web-app settings into firebaseConfig, and reload (check firebaseConfig in this HTML file)."
     );
 }
 
@@ -3842,10 +3994,10 @@ function authErrorMessage(error) {
         case "auth/operation-not-supported-in-this-environment":
             return "Open this page through http://localhost or your hosted URL. Firebase Auth does not work from a file:// address.";
         case "clinsync/timeout":
-            return "Could not reach Firestore. In the Firebase Console create the database (Build > Firestore Database) and publish firestore.rules, then try again.";
+            return "Could not reach Firestore. In the Firebase Console create the database (Build > Firestore Database) and publish the project's Firestore security rules, then try again.";
         case "unavailable":
         case "failed-precondition":
-            return "Firestore is not available yet. Create the Firestore database in the Firebase Console and publish firestore.rules.";
+            return "Firestore is not available yet. Create the Firestore database in the Firebase Console and publish the project's Firestore security rules.";
         case "clinsync/name-taken":
             return "This full name is already registered, or the Firestore security rules have not been published yet.";
         default:
@@ -3883,7 +4035,7 @@ async function createProfile(firebaseUser, name, role) {
         name,
         email: String(firebaseUser.email || "").toLowerCase(),
         role,
-        rotation: "Internal Medicine",
+        rotation: "",
         notificationsEnabled: true,
         createdAt: new Date().toISOString()
     };
@@ -4188,10 +4340,10 @@ function updateUserInterface() {
     document.getElementById("topbarAvatar").textContent = avatar;
 
     document.getElementById("studentGreeting").textContent =
-        "Good morning, " + name + ".";
+        "Welcome, " + name + ".";
 
     document.getElementById("instructorGreeting").textContent =
-        "Good morning, " + name + ".";
+        "Welcome, " + name + ".";
 
     document.getElementById("settingsName").value = name;
     document.getElementById("settingsEmail").value = currentUser.email;
@@ -4199,7 +4351,7 @@ function updateUserInterface() {
     document.getElementById("settingsEmail").readOnly = true;
     document.getElementById("settingsRole").value = role;
     const rotationSetting = document.getElementById("settingsRotation");
-    if (rotationSetting) rotationSetting.value = currentUser.rotation || "Internal Medicine";
+    if (rotationSetting) rotationSetting.value = currentUser.rotation || "";
     const notificationSetting = document.getElementById("notificationsEnabled");
     if (notificationSetting) notificationSetting.checked = currentUser.notificationsEnabled !== false;
 
@@ -4209,6 +4361,7 @@ function updateUserInterface() {
 function renderNavigation() {
 
     const navigation = document.getElementById("mainNavigation");
+    document.querySelector(".notification-dot").hidden = !getNotifications().some(item => !item.read && ((!item.recipientEmail && !item.recipientName && !item.recipientRole) || item.recipientName === currentUser.name || item.recipientRole === currentUser.role || item.recipientEmail === currentUser.email));
 
     navigation.innerHTML = navigationItems
         .filter(item => item.roles.includes(currentUser.role))
@@ -4293,6 +4446,7 @@ function navigate(pageId) {
 
     document.getElementById("sidebar").classList.remove("open");
 
+    if (pageId === "duties") renderDuties();
     if (pageId === "attendance") renderAttendance();
     if (pageId === "activities") renderActivities();
     if (pageId === "submissions") renderSubmissions();
@@ -4333,13 +4487,13 @@ function toast(message, type = "success") {
    G. DASHBOARD RENDERING
 ========================================= */
 
-function makeChart(containerId, values) {
+function makeChart(containerId, values, labels = values.map((_, index) => String(index + 1))) {
 
     const container = document.getElementById(containerId);
 
     if (!container) return;
 
-    const labels = ["Mar 04", "Mar 18", "Apr 02", "Apr 16", "May 01", "Today"];
+
 
     container.innerHTML = values.map((value, index) => `
         <div class="bar-wrap">
@@ -4351,10 +4505,9 @@ function makeChart(containerId, values) {
 
 function renderDashboard() {
 
-    makeChart("studentChart", [58, 65, 62, 72, 79, 88]);
-    makeChart("instructorChart", [58, 65, 62, 72, 79, 88]);
+    renderRealDashboard();
 
-    const activities = getActivities();
+    const activities = getActivities().filter(item => currentUser.role === "student" || (item.instructorUid ? item.instructorUid === currentUser.uid : item.createdBy === currentUser.name));
 
     const mine = activities.filter(item =>
         item.student === currentUser.name
@@ -4429,15 +4582,15 @@ function renderDashboard() {
         item.status === "Submitted"
     ).length;
 
-    const evaluations = getEvaluations();
+    const evaluations = getEvaluations().filter(item => item.instructorUid ? item.instructorUid === currentUser.uid : item.instructor === currentUser.name);
 
     document.getElementById("totalStudents").textContent =
-        getUsers().filter(user => user.role === "student").length;
+        new Set([...students, ...getDuties().map(item => item.student), ...evaluations.map(item => item.student)]).size;
 
     document.getElementById("pendingSubmissions").textContent = pending;
 
     document.getElementById("pendingEvaluations").textContent =
-        Math.max(0, students.length - evaluations.length);
+        students.filter(name => !evaluations.some(item => item.student === name)).length;
 
     document.getElementById("todayActivities").textContent =
         activities.filter(item => item.due === todayISO()).length;
@@ -4533,6 +4686,7 @@ document.getElementById("createActivityForm").addEventListener("submit", event =
         status: "Not started",
         createdAt: todayISO(),
         createdBy: currentUser.name,
+        instructorUid: currentUser.uid,
         submittedAt: "",
         fileName: "",
         notes: "",
@@ -4900,10 +5054,11 @@ function renderEvaluationCriteria() {
             <div class="rating-row">
                 <label>${escapeHTML(criterion)}</label>
 
-                <select id="criterion${index}">
+                <select id="criterion${index}" required>
+                    <option value="" selected>Select a rating</option>
                     <option value="1">1 — Needs improvement</option>
                     <option value="2">2 — Developing</option>
-                    <option value="3" selected>3 — Satisfactory</option>
+                    <option value="3">3 — Satisfactory</option>
                     <option value="4">4 — Very good</option>
                     <option value="5">5 — Excellent</option>
                 </select>
@@ -4923,6 +5078,11 @@ document.getElementById("evaluationForm").addEventListener("submit", event => {
         return;
     }
 
+    if (!document.getElementById("evaluationStudent").value) {
+        toast("Select a registered student.", "error");
+        return;
+    }
+
     const scores = {};
 
     criteria.forEach((criterion, index) => {
@@ -4930,6 +5090,11 @@ document.getElementById("evaluationForm").addEventListener("submit", event => {
             document.getElementById("criterion" + index).value
         );
     });
+
+    if (Object.values(scores).some(score => !Number.isFinite(score) || score < 1 || score > 5)) {
+        toast("Rate every evaluation criterion before saving.", "error");
+        return;
+    }
 
     const evaluations = getEvaluations();
 
@@ -4941,6 +5106,7 @@ document.getElementById("evaluationForm").addEventListener("submit", event => {
         comment: document.getElementById("evaluationComment").value.trim(),
         date: todayISO(),
         instructor: currentUser.name,
+        instructorUid: currentUser.uid,
         released: true,
         releasedAt: new Date().toISOString()
     });
@@ -4955,6 +5121,7 @@ document.getElementById("evaluationForm").addEventListener("submit", event => {
     );
 
     document.getElementById("evaluationComment").value = "";
+    renderEvaluationCriteria();
 
     renderAll();
 
@@ -5480,6 +5647,9 @@ function renderPortfolio() {
         item.to === currentUser.name
     );
 
+    const average = evaluationSummary(evaluations.filter(item => item.released !== false)).overall;
+    document.getElementById("portfolioAverage").textContent = average === null ? "—" : `${average.toFixed(2)}/5`;
+
     document.getElementById("portfolioActivities").textContent =
         activities.length;
 
@@ -5813,6 +5983,7 @@ function renderAll() {
     if (!currentUser) return;
 
     renderDashboard();
+    renderDuties();
     renderActivities();
     renderSubmissions();
     renderEvaluations();
@@ -5847,6 +6018,7 @@ document.querySelectorAll("[data-toggle-password]").forEach(button => {
    U. INITIAL APPLICATION STATE
 ========================================= */
 
+initDutyForm();
 document.getElementById("attendanceDate").value = todayISO();
 
 document.querySelectorAll(".page").forEach(page => {
