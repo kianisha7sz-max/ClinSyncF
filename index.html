@@ -3665,8 +3665,27 @@ function fileApiBase() {
 }
 
 async function fileApiHeaders() {
-    if (!auth || !auth.currentUser) throw new Error("Please sign in again.");
-    return { Authorization: "Bearer " + await auth.currentUser.getIdToken() };
+    const user = auth && auth.currentUser;
+
+    if (!user) {
+        throw new Error("Your session has expired. Please sign in again.");
+    }
+
+    // Refresh the Firebase ID token
+    const token = await user.getIdToken(true);
+
+    if (!token) {
+        throw new Error("Could not refresh your login. Please sign in again.");
+    }
+
+    // Make sure the same account is still signed in
+    if (!auth.currentUser || auth.currentUser.uid !== user.uid) {
+        throw new Error("Your sign-in session changed. Please sign in again.");
+    }
+
+    return {
+        Authorization: `Bearer ${token}`
+    };
 }
 
 async function fileApiError(response, fallback) {
